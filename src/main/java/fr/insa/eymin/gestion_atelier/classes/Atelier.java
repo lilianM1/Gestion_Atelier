@@ -7,6 +7,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+
 public class Atelier {
     // ========================== Attributs ================================
 
@@ -186,6 +193,20 @@ public class Atelier {
 
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Dessin de l'atelier
+    public static void dessinerAtelier(Pane planAtelier, ArrayList<Machine> machines) {
+        for (Machine m : machines) {
+            Button machineButton = new Button(m.getRefEquipement());
+            machineButton.setOnAction(e -> {
+                m.afficherMachine();
+            });
+            machineButton.setLayoutX(m.getPosX());
+            machineButton.setLayoutY(m.getPosY());
+            planAtelier.getChildren().add(machineButton);
         }
     }
 

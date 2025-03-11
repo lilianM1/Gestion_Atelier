@@ -46,7 +46,7 @@ public class Produit {
     public static void creerProduit() {
         // Création de la fenêtre
         Stage creerProdStage = new Stage();
-        creerProdStage.setTitle("Créer un produit");
+        creerProdStage.setTitle("Nouveau produit");
 
         // Création des champs de texte
         TextField codeProduitField = new TextField();

@@ -1,12 +1,18 @@
 package fr.insa.eymin.gestion_atelier;
 
-import atlantafx.base.theme.*;
-import fr.insa.eymin.gestion_atelier.classes.Atelier;
-import fr.insa.eymin.gestion_atelier.classes.Produit;
-import javafx.application.Application;
+import java.util.ArrayList;
+import fr.insa.eymin.gestion_atelier.classes.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.*;
 
@@ -17,10 +23,11 @@ public class Gui {
 
     // ========================== Méthodes =================================
     // ---------------------------------------------------------------------
-    // Affiche le menu principal
+    // Affiche la fenête principale
     public static void mainMenu() {
         Stage primaryStage = new Stage();
         primaryStage.setTitle("Gestion d'atelier");
+        Pane planAtelier = new Pane();
 
         // Création de la barre de menu
         MenuBar menuBar = new MenuBar();
@@ -28,15 +35,41 @@ public class Gui {
         // ------------------------- Menu "Gestion" -------------------------
         Menu gestionMenu = new Menu("Gestion");
         Menu sousMenuNouveau = new Menu("Nouveau");
+        Menu sousMenuAfficher = new Menu("Afficher");
 
         MenuItem nouveauProduit = new MenuItem("Produit");
         nouveauProduit.setOnAction(e -> {
             Produit.creerProduit();
         });
 
-        sousMenuNouveau.getItems().addAll(nouveauProduit);
+        MenuItem nouveauMachine = new MenuItem("Machine");
+        ArrayList<Machine> machines = new ArrayList<Machine>();
+        nouveauMachine.setOnAction(e -> {
+            Machine.creerMachine(machines, planAtelier);
+        });
+
+        MenuItem afficherMachines = new MenuItem("Machines");
+        afficherMachines.setOnAction(e -> {
+            for (Machine m : machines) {
+                m.afficherMachine();
+            }
+            System.out.println();
+        });
+
+        MenuItem dessinerAtelier = new MenuItem("Dessiner atelier");
+        dessinerAtelier.setOnAction(e -> {
+            Atelier.dessinerAtelier(planAtelier, machines);
+        });
+
+        sousMenuNouveau.getItems().addAll(
+                nouveauProduit,
+                nouveauMachine);
+        sousMenuAfficher.getItems().addAll(
+                afficherMachines);
         gestionMenu.getItems().addAll(
-                sousMenuNouveau);
+                sousMenuNouveau,
+                sousMenuAfficher,
+                dessinerAtelier);
 
         // ------------------------- Menu "Optimisation" -------------------------
         Menu optimisationMenu = new Menu("Optimisation");
@@ -49,41 +82,6 @@ public class Gui {
         // ------------------------- Menu "Paramètres" -------------------------
         Menu parametresMenu = new Menu("Paramètres");
 
-        // Sous-menu "Apparence"
-        Menu themesMenu = new Menu("Apparence");
-        MenuItem themeCupertinoDark = new MenuItem("Cupertino Dark");
-        themeCupertinoDark.setOnAction(e -> {
-            Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
-        });
-        MenuItem themeCupertinoLight = new MenuItem("Cupertino Light");
-        themeCupertinoLight.setOnAction(e -> {
-            Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
-        });
-        MenuItem themeDark = new MenuItem("Dark");
-        themeDark.setOnAction(e -> {
-            Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
-        });
-        MenuItem themeLight = new MenuItem("Light");
-        themeLight.setOnAction(e -> {
-            Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
-        });
-        themesMenu.getItems().addAll(themeCupertinoDark, themeCupertinoLight, themeDark, themeLight);
-        MenuItem themeNordDark = new MenuItem("Nord Dark");
-        themeNordDark.setOnAction(e -> {
-            Application.setUserAgentStylesheet(new NordDark().getUserAgentStylesheet());
-        });
-        themesMenu.getItems().add(themeNordDark);
-        MenuItem themeNordLight = new MenuItem("Nord Light");
-        themeNordLight.setOnAction(e -> {
-            Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
-        });
-        themesMenu.getItems().add(themeNordLight);
-        MenuItem themeDracula = new MenuItem("Dracula");
-        themeDracula.setOnAction(e -> {
-            Application.setUserAgentStylesheet(new Dracula().getUserAgentStylesheet());
-        });
-        themesMenu.getItems().add(themeDracula);
-
         MenuItem fullscreenItem = new MenuItem("Plein écran");
         primaryStage.setFullScreenExitHint("");
         fullscreenItem.setOnAction(e -> {
@@ -95,18 +93,34 @@ public class Gui {
         });
 
         parametresMenu.getItems().addAll(
-                themesMenu,
+
                 fullscreenItem);
 
         // ---------------------------------------------------------------------
         // Ajout des menus à la barre de menu
-        menuBar.getMenus().addAll(gestionMenu,
+        menuBar.getMenus().addAll(
+                gestionMenu,
                 optimisationMenu,
                 parametresMenu);
 
         // Création de la scène
-        Scene scene = new Scene(new VBox(), 1280, 720);
-        ((VBox) scene.getRoot()).getChildren().add(menuBar);
+        BorderPane fenetre = new BorderPane();
+        VBox infoDroite = new VBox();
+
+        infoDroite.getChildren().addAll(new Label("Informations"), new Label("A venir..."));
+        infoDroite.setPrefWidth(250);
+        infoDroite.setStyle("-fx-background-color: #161b22;");
+        infoDroite.setPadding(new javafx.geometry.Insets(10));
+        infoDroite.setSpacing(10);
+        infoDroite.setBorder(new Border(new BorderStroke(javafx.scene.paint.Paint.valueOf("#21262d"),
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        fenetre.setRight(infoDroite);
+
+        VBox.setVgrow(infoDroite, Priority.SOMETIMES);
+        // Création de la disposition
+        fenetre.setTop(menuBar);
+        fenetre.setCenter(planAtelier);
+        Scene scene = new Scene(fenetre, 1280, 720);
 
         // Définition de la scène pour la fenêtre principale
         Image icon = new Image("file:src\\main\\ressources\\icon.png"); // Assurez-vous que le chemin est correct
