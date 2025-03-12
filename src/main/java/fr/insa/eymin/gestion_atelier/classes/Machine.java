@@ -72,7 +72,8 @@ public class Machine extends Equipement {
 
     // ---------------------------------------------------------------------
     // Creer une machine
-    public static ArrayList<Machine> creerMachine(ArrayList<Machine> machines, Pane planAtelier) {
+    public static ArrayList<Machine> creerMachine(ArrayList<Machine> machines, Pane planAtelier, Label dMach,
+            Label coutHMach, Label dureeMach, Label etatMach) {
         // Création de la fenêtre
         Stage creerMachineStage = new Stage();
         creerMachineStage.setTitle("Nouvelle machine");
@@ -129,8 +130,7 @@ public class Machine extends Equipement {
                 posYField.clear();
                 coutHoraireField.clear();
                 dureeUtilField.clear();
-
-                Atelier.dessinerAtelier(planAtelier, machines);
+                Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach);
             } catch (Exception ex) {
                 if (ex.getMessage().equals("La machine existe déjà")) {
                     Alert alert = new Alert(AlertType.ERROR);
@@ -151,7 +151,9 @@ public class Machine extends Equipement {
         });
 
         // Action du bouton Annuler
-        annulerButton.setOnAction(e -> creerMachineStage.close());
+        annulerButton.setOnAction(e -> {
+            creerMachineStage.close();
+        });
 
         // Création de la disposition
         VBox layout = new VBox(20);

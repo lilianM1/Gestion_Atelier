@@ -198,11 +198,18 @@ public class Atelier {
 
     // ---------------------------------------------------------------------
     // Dessin de l'atelier
-    public static void dessinerAtelier(Pane planAtelier, ArrayList<Machine> machines) {
+    public static void dessinerAtelier(Pane planAtelier, ArrayList<Machine> machines, Label dMach, Label coutHMach,
+            Label dureeMach, Label etatMach) {
         for (Machine m : machines) {
             Button machineButton = new Button(m.getRefEquipement());
             machineButton.setOnAction(e -> {
-                m.afficherMachine();
+                dMach.setText(m.getdEquipement());
+                coutHMach.setText("Coût horaire : " + m.getCoutHoraire() + " €");
+                int h = Integer.parseInt(Float.toString(m.getDureeUtil()).split("\\.")[0]);
+                String min = "0." + Float.toString(m.getDureeUtil()).split("\\.")[1];
+                min = Integer.toString((int) (Float.parseFloat(min) * 60));
+                dureeMach.setText("Durée d'utilisation : " + h + "h" + min + "min");
+                etatMach.setText("Etat : " + m.getEtat());
             });
             machineButton.setLayoutX(m.getPosX());
             machineButton.setLayoutY(m.getPosY());

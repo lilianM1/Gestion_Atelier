@@ -24,10 +24,15 @@ public class Gui {
     // ========================== Méthodes =================================
     // ---------------------------------------------------------------------
     // Affiche la fenête principale
-    public static void mainMenu() {
+    public static void mainWindow() {
         Stage primaryStage = new Stage();
         primaryStage.setTitle("Gestion d'atelier");
         Pane planAtelier = new Pane();
+
+        Label dMach = new Label();
+        Label coutHMach = new Label();
+        Label dureeMach = new Label();
+        Label etatMach = new Label();
 
         // Création de la barre de menu
         MenuBar menuBar = new MenuBar();
@@ -45,7 +50,7 @@ public class Gui {
         MenuItem nouveauMachine = new MenuItem("Machine");
         ArrayList<Machine> machines = new ArrayList<Machine>();
         nouveauMachine.setOnAction(e -> {
-            Machine.creerMachine(machines, planAtelier);
+            Machine.creerMachine(machines, planAtelier, dMach, coutHMach, dureeMach, etatMach);
         });
 
         MenuItem afficherMachines = new MenuItem("Machines");
@@ -58,7 +63,7 @@ public class Gui {
 
         MenuItem dessinerAtelier = new MenuItem("Dessiner atelier");
         dessinerAtelier.setOnAction(e -> {
-            Atelier.dessinerAtelier(planAtelier, machines);
+            Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach);
         });
 
         sousMenuNouveau.getItems().addAll(
@@ -107,17 +112,18 @@ public class Gui {
         BorderPane fenetre = new BorderPane();
         VBox infoDroite = new VBox();
 
-        infoDroite.getChildren().addAll(new Label("Informations"), new Label("A venir..."));
+        // Configuration de la partie droite
+        infoDroite.getChildren().addAll(dMach, coutHMach, dureeMach, etatMach);
         infoDroite.setPrefWidth(250);
         infoDroite.setStyle("-fx-background-color: #161b22;");
         infoDroite.setPadding(new javafx.geometry.Insets(10));
         infoDroite.setSpacing(10);
         infoDroite.setBorder(new Border(new BorderStroke(javafx.scene.paint.Paint.valueOf("#21262d"),
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        fenetre.setRight(infoDroite);
-
         VBox.setVgrow(infoDroite, Priority.SOMETIMES);
+
         // Création de la disposition
+        fenetre.setRight(infoDroite);
         fenetre.setTop(menuBar);
         fenetre.setCenter(planAtelier);
         Scene scene = new Scene(fenetre, 1280, 720);

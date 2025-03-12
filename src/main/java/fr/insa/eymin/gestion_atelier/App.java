@@ -8,7 +8,7 @@ public class App extends Application {
     // Méthode appelée au démarrage de l'application
     public void start(Stage primaryStage) {
         Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
-        Gui.mainMenu();
+        Gui.mainWindow();
     }
 
     // Méthode principale
