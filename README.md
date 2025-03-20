@@ -11,4 +11,4 @@ Pour analyser les gammes de fabrication d’une ligne de produits, on définit p
 différents produits, les opérations et les postes nécessaires à la réalisation de leur
 fabrication en tenant compte des temps et des coûts associés.
 
-[UML Gestion Atelier.pdf](https://github.com/user-attachments/files/19366501/UML.Gestion.Atelier.pdf)
+[UML Gestion Atelier.pdf](https://github.com/lilianM1/Gestion_Atelier/blob/main/UML%20Gestion%20Atelier.pdf)
