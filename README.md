@@ -10,3 +10,5 @@ Pour simplifier, on s’intéresse ici la gestion de la fabrication d’une lign
 Pour analyser les gammes de fabrication d’une ligne de produits, on définit pour les
 différents produits, les opérations et les postes nécessaires à la réalisation de leur
 fabrication en tenant compte des temps et des coûts associés.
+
+[UML Projet M2.pdf](https://github.com/user-attachments/files/19365359/UML.Projet.M2.pdf)
