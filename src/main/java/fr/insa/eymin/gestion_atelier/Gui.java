@@ -35,18 +35,19 @@ public class Gui {
         Menu sousMenuAfficher = new Menu("Afficher");
 
         MenuItem nouveauProduit = new MenuItem("Produit");
-        nouveauProduit.setOnAction(e -> {
-            Produit.creerProduit();
+        ArrayList<Produit> produits = new ArrayList<Produit>();
+        nouveauProduit.setOnAction(_ -> {
+            Produit.creerProduit(produits);
         });
 
         MenuItem nouveauMachine = new MenuItem("Machine");
         ArrayList<Machine> machines = new ArrayList<Machine>();
-        nouveauMachine.setOnAction(e -> {
+        nouveauMachine.setOnAction(_ -> {
             Machine.creerMachine(machines, planAtelier, dMach, coutHMach, dureeMach, etatMach);
         });
 
         MenuItem afficherMachines = new MenuItem("Machines");
-        afficherMachines.setOnAction(e -> {
+        afficherMachines.setOnAction(_ -> {
             for (Machine m : machines) {
                 m.afficherMachine();
             }
@@ -54,7 +55,7 @@ public class Gui {
         });
 
         MenuItem dessinerAtelier = new MenuItem("Dessiner atelier");
-        dessinerAtelier.setOnAction(e -> {
+        dessinerAtelier.setOnAction(_ -> {
             Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach);
         });
 
@@ -71,7 +72,7 @@ public class Gui {
         // ------------------------- Menu "Optimisation" -------------------------
         Menu optimisationMenu = new Menu("Optimisation");
         MenuItem optimisationItem = new MenuItem("Calcul fiabilité machines");
-        optimisationItem.setOnAction(e -> {
+        optimisationItem.setOnAction(_ -> {
             Atelier.calculFiabilite();
         });
         optimisationMenu.getItems().add(optimisationItem);
@@ -81,7 +82,7 @@ public class Gui {
 
         MenuItem fullscreenItem = new MenuItem("Plein écran");
         primaryStage.setFullScreenExitHint("");
-        fullscreenItem.setOnAction(e -> {
+        fullscreenItem.setOnAction(_ -> {
             if (primaryStage.isFullScreen()) {
                 primaryStage.setFullScreen(false);
             } else {

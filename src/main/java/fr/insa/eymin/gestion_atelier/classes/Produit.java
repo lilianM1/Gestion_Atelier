@@ -1,5 +1,7 @@
 package fr.insa.eymin.gestion_atelier.classes;
 
+import java.util.ArrayList;
+
 import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -43,7 +45,7 @@ public class Produit {
 
     // ---------------------------------------------------------------------
     // Créer un produit
-    public static void creerProduit() {
+    public static ArrayList<Produit> creerProduit(ArrayList<Produit> produits) {
         // Création de la fenêtre
         Stage creerProdStage = new Stage();
         creerProdStage.setTitle("Nouveau produit");
@@ -63,7 +65,7 @@ public class Produit {
         Button annulerButton = new Button("Annuler");
 
         // Action du bouton Valider
-        validerButton.setOnAction(e -> {
+        validerButton.setOnAction(_ -> {
             try {
                 if (codeProduitField.getText().isEmpty() || dProduitField.getText().isEmpty()) {
                     throw new Exception("Veuillez remplir tous les champs");
@@ -84,7 +86,7 @@ public class Produit {
         });
 
         // Action du bouton Annuler
-        annulerButton.setOnAction(e -> creerProdStage.close());
+        annulerButton.setOnAction(_ -> creerProdStage.close());
 
         // Création de la disposition
         VBox layout = new VBox(20);
@@ -111,6 +113,7 @@ public class Produit {
         creerProdStage.getIcons().add(new Image("file:src\\main\\ressources\\icon.png"));
         creerProdStage.setScene(scene);
         creerProdStage.show();
+        return produits;
     }
 
     // ========================== Getters/Setters ==========================

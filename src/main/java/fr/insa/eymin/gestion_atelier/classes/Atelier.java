@@ -6,9 +6,7 @@ import java.util.LinkedHashMap;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 
 public class Atelier {
@@ -164,7 +162,7 @@ public class Atelier {
                         .sorted((HashMap.Entry.<String, Float>comparingByValue().reversed()))
                         .collect(java.util.stream.Collectors.toMap(java.util.Map.Entry::getKey,
                                 java.util.Map.Entry::getValue,
-                                (e1, e2) -> e1, LinkedHashMap::new));
+                                (e1, _) -> e1, LinkedHashMap::new));
                 fiabTri.forEach((key, value) -> System.out.println(key + ": " + value +
                         "%"));
                 System.out.println("");
@@ -183,7 +181,7 @@ public class Atelier {
                         .sorted((HashMap.Entry.<String, Float>comparingByValue().reversed()))
                         .collect(java.util.stream.Collectors.toMap(java.util.Map.Entry::getKey,
                                 java.util.Map.Entry::getValue,
-                                (e1, e2) -> e1, LinkedHashMap::new));
+                                (e1, _) -> e1, LinkedHashMap::new));
             }
             fiabiliteMoyenne.forEach(
                     (key, value) -> System.out.println("Fiabilité moyenne de la machine " + key + ": " + value + "%"));
@@ -199,7 +197,7 @@ public class Atelier {
             Label dureeMach, Label etatMach) {
         for (Machine m : machines) {
             Button machineButton = new Button(m.getRefEquipement());
-            machineButton.setOnAction(e -> {
+            machineButton.setOnAction(_ -> {
                 dMach.setText(m.getdEquipement());
                 coutHMach.setText("Coût horaire : " + m.getCoutHoraire() + " €");
                 int h = Integer.parseInt(Float.toString(m.getDureeUtil()).split("\\.")[0]);

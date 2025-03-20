@@ -1,10 +1,12 @@
 module fr.insa.eymin.gestion_atelier {
-    requires javafx.controls;
+    requires transitive javafx.controls;
+    requires transitive javafx.fxml;
     requires transitive javafx.graphics;
-    requires atlantafx.base;
     requires org.fxyz3d.core;
-
-    opens fr.insa.eymin.gestion_atelier to javafx.fxml;
+    requires atlantafx.base;
 
     exports fr.insa.eymin.gestion_atelier;
+    exports fr.insa.eymin.gestion_atelier.classes;
+
+    opens fr.insa.eymin.gestion_atelier to javafx.fxml;
 }
