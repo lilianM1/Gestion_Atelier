@@ -11,4 +11,4 @@ Pour analyser les gammes de fabrication d’une ligne de produits, on définit p
 différents produits, les opérations et les postes nécessaires à la réalisation de leur
 fabrication en tenant compte des temps et des coûts associés.
 
-[UML Projet M2.pdf](https://github.com/user-attachments/files/19365359/UML.Projet.M2.pdf)
+![UML Projet M2](https://github.com/user-attachments/assets/ae1780ee-2abd-4e5d-baca-0dc2ef6f3a85)
