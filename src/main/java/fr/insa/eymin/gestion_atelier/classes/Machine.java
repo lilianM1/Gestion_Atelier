@@ -1,8 +1,6 @@
 package fr.insa.eymin.gestion_atelier.classes;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
