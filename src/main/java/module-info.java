@@ -4,6 +4,9 @@ module fr.insa.eymin.gestion_atelier {
     requires transitive javafx.graphics;
     requires org.fxyz3d.core;
     requires atlantafx.base;
+    requires org.apache.poi.ooxml;
+    requires org.apache.poi.poi;
+    requires java.desktop;
 
     exports fr.insa.eymin.gestion_atelier;
     exports fr.insa.eymin.gestion_atelier.classes;
