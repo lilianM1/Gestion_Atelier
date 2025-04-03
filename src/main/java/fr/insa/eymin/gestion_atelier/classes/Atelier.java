@@ -48,7 +48,7 @@ public class Atelier {
         File maintenanceLog = new File("src\\main\\ressources\\suiviMaintenance.txt");
 
         // Création du workbook Excel
-        String excelFilePath = "src\\main\\ressources\\Fiabilité Machines.xlsx";
+        String excelFilePath = "src\\main\\ressources\\Fiabilité Machines.csv";
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Fiabilité Machines");
         // Style pour les en-têtes (gras)
