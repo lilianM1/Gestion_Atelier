@@ -103,7 +103,7 @@ public class Machine extends Equipement {
         Button annulerButton = new Button("Terminer");
 
         // Action du bouton Valider
-        validerButton.setOnAction(_ -> {
+        validerButton.setOnAction(e -> {
             try {
                 if (refMachField.getText().isEmpty() || dMachField.getText().isEmpty() || posXField.getText().isEmpty()
                         || posYField.getText().isEmpty() || coutHoraireField.getText().isEmpty()
@@ -149,7 +149,7 @@ public class Machine extends Equipement {
         });
 
         // Action du bouton Annuler
-        annulerButton.setOnAction(_ -> {
+        annulerButton.setOnAction(e -> {
             creerMachineStage.close();
         });
 

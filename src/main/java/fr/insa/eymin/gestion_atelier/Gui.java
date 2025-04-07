@@ -36,18 +36,18 @@ public class Gui {
 
         MenuItem nouveauProduit = new MenuItem("Produit");
         ArrayList<Produit> produits = new ArrayList<Produit>();
-        nouveauProduit.setOnAction(_ -> {
+        nouveauProduit.setOnAction(e -> {
             Produit.creerProduit(produits);
         });
 
         MenuItem nouveauMachine = new MenuItem("Machine");
         ArrayList<Machine> machines = new ArrayList<Machine>();
-        nouveauMachine.setOnAction(_ -> {
+        nouveauMachine.setOnAction(e -> {
             Machine.creerMachine(machines, planAtelier, dMach, coutHMach, dureeMach, etatMach);
         });
 
         MenuItem afficherMachines = new MenuItem("Machines");
-        afficherMachines.setOnAction(_ -> {
+        afficherMachines.setOnAction(e -> {
             for (Machine m : machines) {
                 m.afficherMachine();
             }
@@ -55,7 +55,7 @@ public class Gui {
         });
 
         MenuItem dessinerAtelier = new MenuItem("Dessiner atelier");
-        dessinerAtelier.setOnAction(_ -> {
+        dessinerAtelier.setOnAction(e -> {
             Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach);
         });
 
@@ -72,7 +72,7 @@ public class Gui {
         // ------------------------- Menu "Optimisation" -------------------------
         Menu optimisationMenu = new Menu("Optimisation");
         MenuItem optimisationItem = new MenuItem("Calcul fiabilité machines");
-        optimisationItem.setOnAction(_ -> {
+        optimisationItem.setOnAction(e -> {
             Atelier.calculFiabilite();
         });
         optimisationMenu.getItems().add(optimisationItem);
@@ -82,7 +82,7 @@ public class Gui {
 
         MenuItem fullscreenItem = new MenuItem("Plein écran");
         primaryStage.setFullScreenExitHint("");
-        fullscreenItem.setOnAction(_ -> {
+        fullscreenItem.setOnAction(e -> {
             if (primaryStage.isFullScreen()) {
                 primaryStage.setFullScreen(false);
             } else {

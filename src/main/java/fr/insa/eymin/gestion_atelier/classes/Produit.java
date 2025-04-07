@@ -65,7 +65,7 @@ public class Produit {
         Button annulerButton = new Button("Annuler");
 
         // Action du bouton Valider
-        validerButton.setOnAction(_ -> {
+        validerButton.setOnAction(e -> {
             try {
                 if (codeProduitField.getText().isEmpty() || dProduitField.getText().isEmpty()) {
                     throw new Exception("Veuillez remplir tous les champs");
@@ -86,7 +86,7 @@ public class Produit {
         });
 
         // Action du bouton Annuler
-        annulerButton.setOnAction(_ -> creerProdStage.close());
+        annulerButton.setOnAction(e -> creerProdStage.close());
 
         // Création de la disposition
         VBox layout = new VBox(20);

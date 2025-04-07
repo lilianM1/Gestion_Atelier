@@ -197,7 +197,7 @@ public class Atelier {
                     .collect(Collectors.toMap(
                             Map.Entry::getKey,
                             Map.Entry::getValue,
-                            (e1, _) -> e1,
+                            (e1, e2) -> e1,
                             LinkedHashMap::new));
 
             // En-têtes pour les fiabilités moyennes
@@ -276,7 +276,7 @@ public class Atelier {
             Label dureeMach, Label etatMach) {
         for (Machine m : machines) {
             Button machineButton = new Button(m.getRefEquipement());
-            machineButton.setOnAction(_ -> {
+            machineButton.setOnAction(e -> {
                 dMach.setText(m.getdEquipement());
                 coutHMach.setText("Coût horaire : " + m.getCoutHoraire() + " €");
                 int h = Integer.parseInt(Float.toString(m.getDureeUtil()).split("\\.")[0]);
