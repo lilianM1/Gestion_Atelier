@@ -61,32 +61,46 @@ public class Produit {
         Label dProduitLabel = new Label("Désignation du produit : ");
 
         // Création des boutons
-        Button validerButton = new Button("Valider");
-        Button annulerButton = new Button("Annuler");
+        Button creerButton = new Button("Créer");
+        Button terminerButton = new Button("Terminer");
 
         // Action du bouton Valider
-        validerButton.setOnAction(e -> {
+        creerButton.setOnAction(e -> {
             try {
                 if (codeProduitField.getText().isEmpty() || dProduitField.getText().isEmpty()) {
                     throw new Exception("Veuillez remplir tous les champs");
                 }
+                if (produits.stream().anyMatch(p -> p.getCodeProduit().equals(codeProduitField.getText()))) {
+                    throw new Exception("Produit déjà existant");
+                }
                 String codeProduit = codeProduitField.getText();
                 String dProduit = dProduitField.getText();
                 Produit produit = new Produit(codeProduit, dProduit);
-                produit.afficherProduit();
-                creerProdStage.close();
+                produits.add(produit);
+                codeProduitField.clear();
+                dProduitField.clear();
+
             } catch (Exception ex) {
-                Alert alert = new Alert(AlertType.ERROR);
-                alert.setTitle("Erreur");
-                alert.setHeaderText("Champs vides");
-                alert.setContentText("Veuillez remplir tous les champs.");
-                alert.showAndWait();
-                return;
+                if (ex.getMessage().equals("Produit déjà existant")) {
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Erreur");
+                    alert.setHeaderText("Produit déjà existant");
+                    alert.setContentText("Le produit existe déjà.");
+                    alert.showAndWait();
+                    return;
+                } else if (ex.getMessage().equals("Veuillez remplir tous les champs")) {
+                    Alert alert = new Alert(AlertType.ERROR);
+                    alert.setTitle("Erreur");
+                    alert.setHeaderText("Champs vides");
+                    alert.setContentText("Veuillez remplir tous les champs.");
+                    alert.showAndWait();
+                    return;
+                }
             }
         });
 
         // Action du bouton Annuler
-        annulerButton.setOnAction(e -> creerProdStage.close());
+        terminerButton.setOnAction(e -> creerProdStage.close());
 
         // Création de la disposition
         VBox layout = new VBox(20);
@@ -100,7 +114,7 @@ public class Produit {
         layoutChamps.add(dProduitLabel, 0, 1);
         layoutChamps.add(dProduitField, 1, 1);
 
-        layoutBoutons.getChildren().addAll(annulerButton, validerButton);
+        layoutBoutons.getChildren().addAll(terminerButton, creerButton);
         layout.getChildren().addAll(layoutChamps, layoutBoutons);
         layout.setAlignment(Pos.CENTER);
         layoutBoutons.setAlignment(Pos.CENTER);

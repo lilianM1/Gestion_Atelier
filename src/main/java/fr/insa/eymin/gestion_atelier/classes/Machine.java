@@ -1,6 +1,7 @@
 package fr.insa.eymin.gestion_atelier.classes;
 
 import java.util.ArrayList;
+
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -10,9 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 public class Machine extends Equipement {
@@ -99,11 +98,11 @@ public class Machine extends Equipement {
         Label dureeUtilLabel = new Label("Durée : ");
 
         // Création des boutons
-        Button validerButton = new Button("Créer");
-        Button annulerButton = new Button("Terminer");
+        Button creerButton = new Button("Créer");
+        Button terminerButton = new Button("Terminer");
 
-        // Action du bouton Valider
-        validerButton.setOnAction(e -> {
+        // Action du bouton Creer
+        creerButton.setOnAction(e -> {
             try {
                 if (refMachField.getText().isEmpty() || dMachField.getText().isEmpty() || posXField.getText().isEmpty()
                         || posYField.getText().isEmpty() || coutHoraireField.getText().isEmpty()
@@ -148,8 +147,8 @@ public class Machine extends Equipement {
             }
         });
 
-        // Action du bouton Annuler
-        annulerButton.setOnAction(e -> {
+        // Action du bouton Terminer
+        terminerButton.setOnAction(e -> {
             creerMachineStage.close();
         });
 
@@ -173,7 +172,7 @@ public class Machine extends Equipement {
         layoutChamps.add(dureeUtilLabel, 0, 5);
         layoutChamps.add(dureeUtilField, 1, 5);
 
-        layoutBoutons.getChildren().addAll(annulerButton, validerButton);
+        layoutBoutons.getChildren().addAll(terminerButton, creerButton);
         layout.getChildren().addAll(layoutChamps, layoutBoutons);
         layout.setAlignment(Pos.CENTER);
         layoutBoutons.setAlignment(Pos.CENTER);

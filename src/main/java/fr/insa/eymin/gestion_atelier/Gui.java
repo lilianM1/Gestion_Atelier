@@ -29,11 +29,12 @@ public class Gui {
         // Création de la barre de menu
         MenuBar menuBar = new MenuBar();
 
-        // ------------------------- Menu "Gestion" -------------------------
+        // =-=-=-=-=-=-=-=-=-=-=-=-= Menu "Gestion" =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         Menu gestionMenu = new Menu("Gestion");
         Menu sousMenuNouveau = new Menu("Nouveau");
         Menu sousMenuAfficher = new Menu("Afficher");
 
+        // ------------------------- Sous-menu "Nouveau" -------------------------
         MenuItem nouveauProduit = new MenuItem("Produit");
         ArrayList<Produit> produits = new ArrayList<Produit>();
         nouveauProduit.setOnAction(e -> {
@@ -46,6 +47,24 @@ public class Gui {
             Machine.creerMachine(machines, planAtelier, dMach, coutHMach, dureeMach, etatMach);
         });
 
+        MenuItem nouveauPoste = new MenuItem("Poste de travail");
+        ArrayList<Poste> postes = new ArrayList<Poste>();
+        nouveauPoste.setOnAction(e -> {
+            Poste.creerPoste(postes, machines);
+        });
+
+        // Création du sous-menu "Equipement"
+        Menu sousMenuNvEq = new Menu("Equipement");
+        sousMenuNvEq.getItems().addAll(
+                nouveauMachine,
+                nouveauPoste);
+
+        // Ajout des items au menu "Nouveau"
+        sousMenuNouveau.getItems().addAll(
+                nouveauProduit,
+                sousMenuNvEq);
+
+        // ------------------------- Sous-menu "Afficher" -------------------------
         MenuItem afficherMachines = new MenuItem("Machines");
         afficherMachines.setOnAction(e -> {
             for (Machine m : machines) {
@@ -54,22 +73,41 @@ public class Gui {
             System.out.println();
         });
 
+        MenuItem afficherProduits = new MenuItem("Produits");
+        afficherProduits.setOnAction(e -> {
+            for (Produit p : produits) {
+                p.afficherProduit();
+            }
+            System.out.println();
+        });
+
+        MenuItem afficherPostes = new MenuItem("Postes");
+        afficherPostes.setOnAction(e -> {
+            for (Poste poste : postes) {
+                poste.afficherPoste();
+            }
+        });
+
+        // Ajout des items au menu "Afficher"
+        sousMenuAfficher.getItems().addAll(
+                afficherProduits,
+                afficherMachines,
+                afficherPostes);
+
+        // ------------------------- Menu "Dessiner" -----------------------------
         MenuItem dessinerAtelier = new MenuItem("Dessiner atelier");
         dessinerAtelier.setOnAction(e -> {
             Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach);
         });
 
-        sousMenuNouveau.getItems().addAll(
-                nouveauProduit,
-                nouveauMachine);
-        sousMenuAfficher.getItems().addAll(
-                afficherMachines);
+        // -----------------------------------------------------------------------
+        // Ajout des sous-menus au menu "Gestion"
         gestionMenu.getItems().addAll(
                 sousMenuNouveau,
                 sousMenuAfficher,
                 dessinerAtelier);
 
-        // ------------------------- Menu "Optimisation" -------------------------
+        // =-=-=-=-=-=-=-=-=-=-=-=-= Menu "Optimisation" =-=-=-=-=-=-=-=-=-=-=-=-=
         Menu optimisationMenu = new Menu("Optimisation");
         MenuItem optimisationItem = new MenuItem("Calcul fiabilité machines");
         optimisationItem.setOnAction(e -> {
@@ -77,7 +115,7 @@ public class Gui {
         });
         optimisationMenu.getItems().add(optimisationItem);
 
-        // ------------------------- Menu "Paramètres" -------------------------
+        // =-=-=-=-=-=-=-=-=-=-=-=-= Menu "Paramètres" =-=-=-=-=-=-=-=-=-=-=-=-=
         Menu parametresMenu = new Menu("Paramètres");
 
         MenuItem fullscreenItem = new MenuItem("Plein écran");
