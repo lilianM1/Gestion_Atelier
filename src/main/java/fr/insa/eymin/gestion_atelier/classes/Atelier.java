@@ -92,8 +92,8 @@ public class Atelier {
                     Scanner scanner = new Scanner(maintenanceLog);
                     while (scanner.hasNextLine()) {
                         String ligne = scanner.nextLine();
-                        String date = ligne.split(" ")[0];
-                        String refMachine = ligne.split(" ")[2];
+                        String date = ligne.split(";")[0];
+                        String refMachine = ligne.split(";")[2];
 
                         if (!jours.containsKey(date)) {
                             jours.put(date, new ArrayList<>());
@@ -139,9 +139,9 @@ public class Atelier {
 
                         // Traitement des événements
                         for (String ligne : jours.get(date)) {
-                            String time = ligne.split(" ")[1];
-                            String refMachine = ligne.split(" ")[2];
-                            String event = ligne.split(" ")[3];
+                            String time = ligne.split(";")[1];
+                            String refMachine = ligne.split(";")[2];
+                            String event = ligne.split(";")[3];
 
                             int heure = Integer.parseInt(time.split(":")[0]);
                             int minute = Integer.parseInt(time.split(":")[1]);
