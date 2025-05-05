@@ -1,6 +1,8 @@
 package fr.insa.eymin.gestion_atelier;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
+
 import fr.insa.eymin.gestion_atelier.classes.*;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -21,10 +23,18 @@ public class Gui {
         primaryStage.setTitle("Gestion d'atelier");
         Pane planAtelier = new Pane();
 
-        Label dMach = new Label();
-        Label coutHMach = new Label();
-        Label dureeMach = new Label();
-        Label etatMach = new Label();
+        // Création des champs de texte pour afficher les informations de la machine
+        TextField refMach = new TextField();
+        refMach.setEditable(false);
+        TextField dMach = new TextField();
+        dMach.setEditable(false);
+        TextField coutHMach = new TextField();
+        coutHMach.setEditable(false);
+        TextField dureeMach = new TextField();
+        dureeMach.setEditable(false);
+        ComboBox<EtatMachine> etatMach = new ComboBox<EtatMachine>();
+        etatMach.getItems().addAll(EtatMachine.values());
+        etatMach.setDisable(true);
 
         // Création de la barre de menu
         MenuBar menuBar = new MenuBar();
@@ -44,7 +54,7 @@ public class Gui {
         MenuItem nouveauMachine = new MenuItem("Machine");
         ArrayList<Machine> machines = new ArrayList<Machine>();
         nouveauMachine.setOnAction(e -> {
-            Machine.creerMachine(machines, planAtelier, dMach, coutHMach, dureeMach, etatMach);
+            Machine.creerMachine(machines, planAtelier, dMach, coutHMach, dureeMach, etatMach, refMach);
         });
 
         MenuItem nouveauPoste = new MenuItem("Poste de travail");
@@ -97,7 +107,7 @@ public class Gui {
         // ------------------------- Menu "Dessiner" -----------------------------
         MenuItem dessinerAtelier = new MenuItem("Dessiner atelier");
         dessinerAtelier.setOnAction(e -> {
-            Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach);
+            Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach, refMach);
         });
 
         // -----------------------------------------------------------------------
@@ -141,11 +151,72 @@ public class Gui {
 
         // Création de la scène
         BorderPane fenetre = new BorderPane();
-        VBox infoDroite = new VBox();
 
         // Configuration de la partie droite
-        infoDroite.getChildren().addAll(dMach, coutHMach, dureeMach, etatMach);
-        infoDroite.setPrefWidth(250);
+        Button modifierButton = new Button("Modifier");
+        Button supprimerButton = new Button("Supprimer");
+        MenuButton creerEq = new MenuButton("Nouveau");
+        MenuItem creerMachine = new MenuItem("Machine");
+        creerMachine.setOnAction(e -> {
+            Machine.creerMachine(machines, planAtelier, dMach, coutHMach, dureeMach, etatMach,
+                    refMach);
+        });
+        MenuItem creerPoste = new MenuItem("Poste de travail");
+        creerPoste.setOnAction(e -> {
+            Poste.creerPoste(postes, machines);
+        });
+        creerEq.getItems().addAll(creerMachine, creerPoste);
+        HBox boutonsHb = new HBox(modifierButton, supprimerButton, creerEq);
+        boutonsHb.setSpacing(10);
+
+        VBox infoDroite = new VBox();
+        infoDroite.getChildren().addAll(
+                new Label("Informations sur l'équipement :"),
+                new HBox(new Label("Référence : "), refMach),
+                new HBox(new Label("Désignation : "), dMach),
+                new HBox(new Label("Coût horaire : "), coutHMach),
+                new HBox(new Label("Durée d'utilisation : "), dureeMach),
+                new HBox(new Label("Etat : "), etatMach),
+                boutonsHb);
+
+        AtomicReference<String> tempRef = new AtomicReference<>();
+        modifierButton.setOnAction(e -> {
+            if (dMach.getText().isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Avertissement");
+                alert.setHeaderText("Aucun équipement sélectionné");
+                alert.setContentText("Veuillez sélectionner un équipement à modifier.");
+                alert.showAndWait();
+            } else {
+                if (modifierButton.getText().equals("Modifier")) {
+                    dMach.setEditable(true);
+                    coutHMach.setEditable(true);
+                    dureeMach.setEditable(true);
+                    etatMach.setDisable(false);
+                    refMach.setEditable(true);
+                    modifierButton.setText("Valider");
+                    tempRef.set(refMach.getText());
+                } else if (modifierButton.getText().equals("Valider")) {
+                    dMach.setEditable(false);
+                    coutHMach.setEditable(false);
+                    dureeMach.setEditable(false);
+                    etatMach.setDisable(true);
+                    refMach.setEditable(false);
+                    modifierButton.setText("Modifier");
+                    for (Machine m : machines) {
+                        System.out.println(m.getRefEquipement());
+                        if (m.getRefEquipement().equals(tempRef.get())) {
+                            m.setdEquipement(dMach.getText());
+                            m.setCoutHoraire(Float.parseFloat(coutHMach.getText()));
+                            m.setDureeUtil(Float.parseFloat(dureeMach.getText()));
+                            m.setEtat(etatMach.getValue());
+                            m.setRefEquipement(refMach.getText());
+                        }
+                    }
+                }
+            }
+        });
+
         infoDroite.setStyle("-fx-background-color: #161b22;");
         infoDroite.setPadding(new javafx.geometry.Insets(10));
         infoDroite.setSpacing(10);

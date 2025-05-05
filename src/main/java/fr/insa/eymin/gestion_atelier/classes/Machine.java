@@ -1,12 +1,12 @@
 package fr.insa.eymin.gestion_atelier.classes;
 
 import java.util.ArrayList;
-
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -69,8 +69,8 @@ public class Machine extends Equipement {
 
     // ---------------------------------------------------------------------
     // Creer une machine
-    public static ArrayList<Machine> creerMachine(ArrayList<Machine> machines, Pane planAtelier, Label dMach,
-            Label coutHMach, Label dureeMach, Label etatMach) {
+    public static ArrayList<Machine> creerMachine(ArrayList<Machine> machines, Pane planAtelier, TextField dMach,
+            TextField coutHMach, TextField dureeMach, ComboBox<EtatMachine> etatMach, TextField refMach) {
         // Création de la fenêtre
         Stage creerMachineStage = new Stage();
         creerMachineStage.setTitle("Nouvelle machine");
@@ -127,7 +127,7 @@ public class Machine extends Equipement {
                 posYField.clear();
                 coutHoraireField.clear();
                 dureeUtilField.clear();
-                Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach);
+                Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach, refMach);
             } catch (Exception ex) {
                 if (ex.getMessage().equals("La machine existe déjà")) {
                     Alert alert = new Alert(AlertType.ERROR);

@@ -3,7 +3,6 @@ package fr.insa.eymin.gestion_atelier.classes;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
-
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
@@ -12,7 +11,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -338,20 +336,22 @@ public class Atelier {
 
     // ---------------------------------------------------------------------
     // Dessin de l'atelier
-    public static void dessinerAtelier(Pane planAtelier, ArrayList<Machine> machines, Label dMach, Label coutHMach,
-            Label dureeMach, Label etatMach) {
+    public static void dessinerAtelier(Pane planAtelier, ArrayList<Machine> machines, TextField dMach,
+            TextField coutHMach,
+            TextField dureeMach, ComboBox<EtatMachine> etatMach, TextField refMach) {
 
         for (Machine m : machines) {
             Button machineButton = new Button(m.getRefEquipement());
             machineButton.setMnemonicParsing(false);
             machineButton.setOnAction(e -> {
                 dMach.setText(m.getdEquipement());
-                coutHMach.setText("Coût horaire : " + m.getCoutHoraire() + " €");
+                coutHMach.setText(m.getCoutHoraire() + "");
                 int h = Integer.parseInt(Float.toString(m.getDureeUtil()).split("\\.")[0]);
                 String min = "0." + Float.toString(m.getDureeUtil()).split("\\.")[1];
                 min = Integer.toString((int) (Float.parseFloat(min) * 60));
-                dureeMach.setText("Durée d'utilisation : " + h + "h" + min + "min");
-                etatMach.setText("Etat : " + m.getEtat());
+                dureeMach.setText(m.getDureeUtil() + "");
+                etatMach.setValue(m.getEtat());
+                refMach.setText(m.getRefEquipement());
             });
             machineButton.setLayoutX(m.getPosX());
             machineButton.setLayoutY(m.getPosY());
