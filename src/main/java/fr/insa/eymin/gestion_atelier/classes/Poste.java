@@ -66,7 +66,6 @@ public class Poste extends Equipement {
         for (Machine m : machines) {
             CheckMenuItem machineItem = new CheckMenuItem(m.getRefEquipement());
             // Empêcher la fermeture du menu lors de la sélection d'un CheckMenuItem
-            machineItem.setOnAction(e -> e.consume());
             machinesButton.getItems().add(machineItem);
         }
 

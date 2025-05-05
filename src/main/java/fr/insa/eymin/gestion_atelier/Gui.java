@@ -43,12 +43,28 @@ public class Gui {
         // Ces champs sont initialement en lecture seule
         TextField refMach = new TextField();
         refMach.setEditable(false);
+        refMach.setOnMouseClicked(event -> {
+            // Lorsqu'on clique sur le champ de référence, on le sélectionne
+            refMach.selectAll();
+        });
         TextField dMach = new TextField();
         dMach.setEditable(false);
+        dMach.setOnMouseClicked(event -> {
+            // Lorsqu'on clique sur le champ de désignation, on le sélectionne
+            dMach.selectAll();
+        });
         TextField coutHMach = new TextField();
         coutHMach.setEditable(false);
+        coutHMach.setOnMouseClicked(event -> {
+            // Lorsqu'on clique sur le champ de coût horaire, on le sélectionne
+            coutHMach.selectAll();
+        });
         TextField dureeMach = new TextField();
         dureeMach.setEditable(false);
+        dureeMach.setOnMouseClicked(event -> {
+            // Lorsqu'on clique sur le champ de durée d'utilisation, on le sélectionne
+            dureeMach.selectAll();
+        });
 
         // ComboBox pour l'état de la machine, initialement désactivée
         ComboBox<EtatMachine> etatMach = new ComboBox<EtatMachine>();
@@ -248,6 +264,7 @@ public class Gui {
 
                     // Met à jour les informations de la machine correspondante
                     for (Machine m : machines) {
+                        System.out.println(m.getRefEquipement());
                         if (m.getRefEquipement().equals(tempRef.get())) {
                             m.setdEquipement(dMach.getText());
                             m.setCoutHoraire(Float.parseFloat(coutHMach.getText()));
