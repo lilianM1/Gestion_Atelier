@@ -9,7 +9,6 @@ module fr.insa.eymin.gestion_atelier {
     requires java.desktop;
 
     exports fr.insa.eymin.gestion_atelier;
-    exports fr.insa.eymin.gestion_atelier.classes;
 
     opens fr.insa.eymin.gestion_atelier to javafx.fxml;
 }
