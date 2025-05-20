@@ -2,7 +2,12 @@ package fr.insa.eymin.gestion_atelier.controleurs;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
-import fr.insa.eymin.gestion_atelier.modeles.*;
+import fr.insa.eymin.gestion_atelier.modeles.Atelier;
+import fr.insa.eymin.gestion_atelier.modeles.EtatMachine;
+import fr.insa.eymin.gestion_atelier.modeles.Machine;
+import fr.insa.eymin.gestion_atelier.modeles.Poste;
+import fr.insa.eymin.gestion_atelier.modeles.Produit;
+import fr.insa.eymin.gestion_atelier.vues.AtelierVue;
 import fr.insa.eymin.gestion_atelier.vues.MachineVue;
 import fr.insa.eymin.gestion_atelier.vues.PosteVue;
 import fr.insa.eymin.gestion_atelier.vues.PrincipalVue;
@@ -36,7 +41,8 @@ public class PrincipalControleur {
     // Méthodes de création
 
     public void creerProduit() {
-        Produit.creerProduit(produits);
+        ProduitControleur controleur = new ProduitControleur(produits);
+        controleur.afficherFenetreCreation();
     }
 
     public void creerMachine() {
@@ -77,7 +83,10 @@ public class PrincipalControleur {
     // Méthodes de gestion de l'atelier
 
     public void calculerFiabilite() {
-        Atelier.calculFiabilite();
+        Atelier modele = new Atelier();
+        AtelierVue vue = new AtelierVue();
+        AtelierControleur controleur = new AtelierControleur(modele, vue);
+        controleur.calculerEtAfficherFiabilite();
     }
 
     public void dessinerAtelier() {
@@ -145,6 +154,13 @@ public class PrincipalControleur {
                     "Veuillez sélectionner un équipement à supprimer.");
         } else {
             // Supprime l'équipement sélectionné
+
+            // Demande de confirmation avant la suppression
+            principalVue.afficherAlerte(Alert.AlertType.CONFIRMATION,
+                    "Confirmation",
+                    "Êtes-vous sûr de vouloir supprimer cet équipement ?",
+                    "Cette action est irréversible.");
+
             deleteMachine(refMach.getText());
             principalVue.viderChamps();
 

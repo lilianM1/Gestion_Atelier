@@ -1,15 +1,5 @@
 package fr.insa.eymin.gestion_atelier.modeles;
 
-import java.util.ArrayList;
-
-import javafx.geometry.Pos;
-import javafx.scene.*;
-import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.image.Image;
-import javafx.scene.layout.*;
-import javafx.stage.Stage;
-
 public class Produit {
     // ========================== Attributs ================================
 
@@ -43,93 +33,6 @@ public class Produit {
         this.dProduit = null;
     }
 
-    // ---------------------------------------------------------------------
-    // Créer un produit
-    public static ArrayList<Produit> creerProduit(ArrayList<Produit> produits) {
-        // Création de la fenêtre
-        Stage creerProdStage = new Stage();
-        creerProdStage.setTitle("Nouveau produit");
-
-        // Création des champs de texte
-        TextField codeProduitField = new TextField();
-        codeProduitField.setPromptText("codeProduit");
-        TextField dProduitField = new TextField();
-        dProduitField.setPromptText("dProduit");
-
-        // Création des labels
-        Label codeProduitLabel = new Label("Code du produit : ");
-        Label dProduitLabel = new Label("Désignation du produit : ");
-
-        // Création des boutons
-        Button creerButton = new Button("Créer");
-        Button terminerButton = new Button("Terminer");
-
-        // Action du bouton Valider
-        creerButton.setOnAction(e -> {
-            try {
-                if (codeProduitField.getText().isEmpty() || dProduitField.getText().isEmpty()) {
-                    throw new Exception("Veuillez remplir tous les champs");
-                }
-                if (produits.stream().anyMatch(p -> p.getCodeProduit().equals(codeProduitField.getText()))) {
-                    throw new Exception("Produit déjà existant");
-                }
-                String codeProduit = codeProduitField.getText();
-                String dProduit = dProduitField.getText();
-                Produit produit = new Produit(codeProduit, dProduit);
-                produits.add(produit);
-                codeProduitField.clear();
-                dProduitField.clear();
-
-            } catch (Exception ex) {
-                if (ex.getMessage().equals("Produit déjà existant")) {
-                    Alert alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Erreur");
-                    alert.setHeaderText("Produit déjà existant");
-                    alert.setContentText("Le produit existe déjà.");
-                    alert.showAndWait();
-                    return;
-                } else if (ex.getMessage().equals("Veuillez remplir tous les champs")) {
-                    Alert alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Erreur");
-                    alert.setHeaderText("Champs vides");
-                    alert.setContentText("Veuillez remplir tous les champs.");
-                    alert.showAndWait();
-                    return;
-                }
-            }
-        });
-
-        // Action du bouton Annuler
-        terminerButton.setOnAction(e -> creerProdStage.close());
-
-        // Création de la disposition
-        VBox layout = new VBox(20);
-        HBox layoutBoutons = new HBox(20);
-        GridPane layoutChamps = new GridPane();
-
-        layoutChamps.setHgap(10);
-        layoutChamps.setVgap(10);
-        layoutChamps.add(codeProduitLabel, 0, 0);
-        layoutChamps.add(codeProduitField, 1, 0);
-        layoutChamps.add(dProduitLabel, 0, 1);
-        layoutChamps.add(dProduitField, 1, 1);
-
-        layoutBoutons.getChildren().addAll(terminerButton, creerButton);
-        layout.getChildren().addAll(layoutChamps, layoutBoutons);
-        layout.setAlignment(Pos.CENTER);
-        layoutBoutons.setAlignment(Pos.CENTER);
-        layout.setPadding(new javafx.geometry.Insets(10));
-
-        // Création de la scène
-        Scene scene = new Scene(layout);
-
-        // Affichage de la fenêtre
-        creerProdStage.getIcons().add(new Image("file:src\\main\\ressources\\icon.png"));
-        creerProdStage.setScene(scene);
-        creerProdStage.show();
-        return produits;
-    }
-
     // ========================== Getters/Setters ==========================
 
     public String getCodeProduit() {
@@ -147,5 +50,4 @@ public class Produit {
     public void setdProduit(String dProduit) {
         this.dProduit = dProduit;
     }
-
 }

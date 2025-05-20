@@ -123,7 +123,7 @@ public class PosteVue {
         // Scène
         Scene scene = new Scene(mainLayout);
         creerPosteStage.setScene(scene);
-        creerPosteStage.getIcons().add(new Image("file:src\\main\\ressources\\icon.png"));
+        creerPosteStage.getIcons().add(new Image("file:src\\main\\ressources\\images\\icon.png"));
         creerPosteStage.initModality(Modality.APPLICATION_MODAL);
         creerPosteStage.show();
     }

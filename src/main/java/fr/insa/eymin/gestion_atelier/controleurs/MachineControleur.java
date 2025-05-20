@@ -2,7 +2,8 @@ package fr.insa.eymin.gestion_atelier.controleurs;
 
 import java.util.ArrayList;
 
-import fr.insa.eymin.gestion_atelier.modeles.*;
+import fr.insa.eymin.gestion_atelier.modeles.EtatMachine;
+import fr.insa.eymin.gestion_atelier.modeles.Machine;
 import fr.insa.eymin.gestion_atelier.vues.PrincipalVue;
 import javafx.stage.Stage;
 

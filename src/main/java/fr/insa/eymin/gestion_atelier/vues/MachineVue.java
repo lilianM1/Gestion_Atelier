@@ -158,7 +158,7 @@ public class MachineVue {
 
         // Configuration et affichage de la fenêtre
         creerMachineStage.initModality(Modality.APPLICATION_MODAL);
-        creerMachineStage.getIcons().add(new Image("file:src\\main\\ressources\\icon.png"));
+        creerMachineStage.getIcons().add(new Image("file:src\\main\\ressources\\images\\icon.png"));
         creerMachineStage.setScene(scene);
         creerMachineStage.show();
     }

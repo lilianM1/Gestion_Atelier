@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 public class App extends Application {
     // Méthode appelée au démarrage de l'application
     public void start(Stage primaryStage) {
-        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+        Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
         // Crée une instance de la vue principale
         PrincipalVue app = new PrincipalVue();
         app.mainWindow();

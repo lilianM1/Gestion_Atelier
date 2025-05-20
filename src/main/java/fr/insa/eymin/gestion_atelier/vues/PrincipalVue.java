@@ -145,17 +145,20 @@ public class PrincipalVue {
 
         // ------------------------- Menu "Dessiner" -----------------------------
         // Option pour dessiner l'atelier dans le panneau central
-        MenuItem dessinerAtelier = new MenuItem("Dessiner atelier");
-        dessinerAtelier.setOnAction(e -> {
-            controleur.dessinerAtelier();
-        });
+        // MenuItem dessinerAtelier = new MenuItem("Dessiner atelier");
+        // dessinerAtelier.setOnAction(e -> {
+        // controleur.dessinerAtelier();
+        // });
 
         // -----------------------------------------------------------------------
         // Ajout des sous-menus au menu "Gestion"
+        // gestionMenu.getItems().addAll(
+        // sousMenuNouveau,
+        // sousMenuAfficher,
+        // dessinerAtelier);
         gestionMenu.getItems().addAll(
                 sousMenuNouveau,
-                sousMenuAfficher,
-                dessinerAtelier);
+                sousMenuAfficher);
 
         // =-=-=-=-=-=-=-=-=-=-=-=-= Menu "Optimisation" =-=-=-=-=-=-=-=-=-=-=-=-=
         Menu optimisationMenu = new Menu("Optimisation");
@@ -205,22 +208,38 @@ public class PrincipalVue {
         creerPoste.setOnAction(e -> {
             controleur.creerPoste();
         });
-        creerEq.getItems().addAll(creerMachine, creerPoste);
+        MenuItem creerProduit = new MenuItem("Produit");
+        creerProduit.setOnAction(e -> {
+            controleur.creerProduit();
+        });
+        creerEq.getItems().addAll(creerMachine, creerPoste, creerProduit);
 
         // Organisation horizontale des boutons
         HBox boutonsHb = new HBox(modifierButton, supprimerButton, creerEq);
         boutonsHb.setSpacing(10);
 
+        // Configuration du bas du panneau d'informations
+        VBox basInfo = new VBox();
+        basInfo.getChildren().addAll(
+                new Label("Sélectionnez une machine pour afficher ses informations"),
+                new Label("Pour modifier une machine, cliquez sur le bouton 'Modifier'"),
+                new Label("Pour créer un nouvel équipement, utilisez le menu déroulant"));
+
         // Panneau d'informations sur l'équipement sélectionné
         VBox infoDroite = new VBox();
+        Separator separator = new Separator();
+
+        // Ajout des éléments au panneau d'informations
         infoDroite.getChildren().addAll(
                 new Label("Informations sur l'équipement :"),
                 new HBox(new Label("Référence : "), refMach),
                 new HBox(new Label("Désignation : "), dMach),
-                new HBox(new Label("Coût horaire : "), coutHMach),
-                new HBox(new Label("Durée d'utilisation : "), dureeMach),
+                new HBox(new Label("Coût horaire : "), coutHMach, new Label(" €")),
+                new HBox(new Label("Durée d'utilisation : "), dureeMach, new Label(" h")),
                 new HBox(new Label("Etat : "), etatMach),
-                boutonsHb);
+                boutonsHb,
+                separator,
+                basInfo);
 
         // Variable temporaire pour stocker la référence initiale lors de la
         // modification
@@ -237,11 +256,15 @@ public class PrincipalVue {
         });
 
         // Stylisation du panneau d'informations
-        infoDroite.setStyle("-fx-background-color: #161b22;");
+        infoDroite.setStyle("-fx-background-color:#eef1f5;");
         infoDroite.setPadding(new javafx.geometry.Insets(10));
         infoDroite.setSpacing(10);
-        infoDroite.setBorder(new Border(new BorderStroke(javafx.scene.paint.Paint.valueOf("#21262d"),
-                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        infoDroite.setBorder(new Border(new BorderStroke(
+                javafx.scene.paint.Paint.valueOf("#c7ceda"), // couleur
+                BorderStrokeStyle.SOLID, // style
+                CornerRadii.EMPTY, // rayons des coins
+                new BorderWidths(0, 0, 0, 1) // largeurs: haut, droite, bas, gauche
+        )));
         VBox.setVgrow(infoDroite, Priority.SOMETIMES);
 
         // Assemblage final de l'interface
@@ -251,7 +274,7 @@ public class PrincipalVue {
         Scene scene = new Scene(fenetre, 1280, 720);
 
         // Configuration finale et affichage de la fenêtre principale
-        Image icon = new Image("file:src\\main\\ressources\\icon.png"); // Icône de l'application
+        Image icon = new Image("file:src\\main\\ressources\\images\\icon.png"); // Icône de l'application
         primaryStage.getIcons().add(icon);
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true); // Démarre en plein écran
