@@ -3,50 +3,70 @@ package fr.insa.eymin.gestion_atelier.controleurs;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import fr.insa.eymin.gestion_atelier.modeles.*;
+import fr.insa.eymin.gestion_atelier.vues.MachineVue;
+import fr.insa.eymin.gestion_atelier.vues.PosteVue;
+import fr.insa.eymin.gestion_atelier.vues.PrincipalVue;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class PrincipalControleur {
+    private PrincipalVue principalVue;
+    private ArrayList<Machine> machines;
+    private ArrayList<Produit> produits = new ArrayList<>();
+    private ArrayList<Poste> postes = new ArrayList<>();
+
+    // =============================================================================
+    // Constructeur
+    public PrincipalControleur(PrincipalVue principalVue, ArrayList<Machine> machines,
+            ArrayList<Produit> produits, ArrayList<Poste> postes) {
+        this.principalVue = principalVue;
+        this.machines = machines;
+        this.produits = produits;
+        this.postes = postes;
+    }
+
     public static void selectChamp(TextField champ) {
         champ.selectAll();
     }
 
     // =================================================================================
+    // Méthodes de création
 
-    public static void creerProduit(ArrayList<Produit> produits) {
+    public void creerProduit() {
         Produit.creerProduit(produits);
     }
 
-    public static void creerMachine(ArrayList<Machine> machines, Pane planAtelier, TextField dMach,
-            TextField coutHMach, TextField dureeMach, ComboBox<EtatMachine> etatMach, TextField refMach) {
-        Machine.creerMachine(machines, planAtelier, dMach, coutHMach, dureeMach, etatMach, refMach);
+    public void creerMachine() {
+        MachineControleur controleur = new MachineControleur(machines, principalVue);
+        MachineVue vue = new MachineVue(controleur);
+        vue.afficherFenetreCreation();
     }
 
-    public static void creerPoste(ArrayList<Poste> postes, ArrayList<Machine> machines) {
-        Poste.creerPoste(postes, machines);
+    public void creerPoste() {
+        PosteVue.fenetreCreationPoste(machines, postes);
     }
 
     // =================================================================================
+    // Méthodes d'affichage
 
-    public static void afficherMachines(ArrayList<Machine> machines) {
+    public void afficherMachines() {
         for (Machine m : machines) {
             m.afficherMachine();
         }
         System.out.println();
     }
 
-    public static void afficherProduits(ArrayList<Produit> produits) {
+    public void afficherProduits() {
         for (Produit p : produits) {
             p.afficherProduit();
         }
         System.out.println();
     }
 
-    public static void afficherPostes(ArrayList<Poste> postes) {
+    public void afficherPostes() {
         for (Poste p : postes) {
             p.afficherPoste();
         }
@@ -54,19 +74,21 @@ public class PrincipalControleur {
     }
 
     // =================================================================================
+    // Méthodes de gestion de l'atelier
 
-    public static void dessinerAtelier(Pane planAtelier, ArrayList<Machine> machines, TextField dMach,
-            TextField coutHMach, TextField dureeMach, ComboBox<EtatMachine> etatMach, TextField refMach) {
-        Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach, refMach);
-    }
-
-    public static void fiabAtelier() {
+    public void calculerFiabilite() {
         Atelier.calculFiabilite();
     }
 
-    // =================================================================================
+    public void dessinerAtelier() {
+        principalVue.afficherMachinesSurPlan(machines);
+    }
 
-    public static void pleinEcran(Stage primaryStage) {
+    // =================================================================================
+    // Méthodes de gestion de l'interface
+
+    public void basculerPleinEcran() {
+        Stage primaryStage = principalVue.getPrimaryStage();
         if (primaryStage.isFullScreen()) {
             primaryStage.setFullScreen(false);
         } else {
@@ -75,73 +97,82 @@ public class PrincipalControleur {
     }
 
     // =================================================================================
+    // Méthodes de gestion des machines
 
-    public static void modification(TextField dMach, TextField coutHMach, TextField dureeMach,
-            ComboBox<EtatMachine> etatMach, TextField refMach, Button modifierButton, ArrayList<Machine> machines,
-            Pane planAtelier, AtomicReference<String> tempRef) {
+    public void modifierMachine(Button modifierButton, AtomicReference<String> tempRef) {
+        TextField dMach = principalVue.getDMach();
+        TextField refMach = principalVue.getRefMach();
+
         if (dMach.getText().isEmpty()) {
             // Affiche une alerte si aucun équipement n'est sélectionné
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Avertissement");
-            alert.setHeaderText("Aucun équipement sélectionné");
-            alert.setContentText("Veuillez sélectionner un équipement à modifier.");
-            alert.showAndWait();
+            principalVue.afficherAlerte(Alert.AlertType.WARNING,
+                    "Avertissement",
+                    "Aucun équipement sélectionné",
+                    "Veuillez sélectionner un équipement à modifier.");
         } else {
             if (modifierButton.getText().equals("Modifier")) {
                 // Passe en mode édition: active les champs de saisie
-                dMach.setEditable(true);
-                coutHMach.setEditable(true);
-                dureeMach.setEditable(true);
-                etatMach.setDisable(false);
-                refMach.setEditable(true);
-                modifierButton.setText("Valider");
+                principalVue.setFieldsEditable(true);
+                principalVue.setModifierButtonText(modifierButton, "Valider");
                 tempRef.set(refMach.getText()); // Mémorise la référence originale
             } else if (modifierButton.getText().equals("Valider")) {
                 // Passe en mode lecture: désactive les champs de saisie et enregistre les
                 // modifications
-                dMach.setEditable(false);
-                coutHMach.setEditable(false);
-                dureeMach.setEditable(false);
-                etatMach.setDisable(true);
-                refMach.setEditable(false);
-                modifierButton.setText("Modifier");
+                principalVue.setFieldsEditable(false);
+                principalVue.setModifierButtonText(modifierButton, "Modifier");
 
-                // Met à jour les informations de la machine correspondante
-                for (Machine m : machines) {
-                    if (m.getRefEquipement().equals(tempRef.get())) {
-                        m.setdEquipement(dMach.getText());
-                        m.setCoutHoraire(Float.parseFloat(coutHMach.getText()));
-                        m.setDureeUtil(Float.parseFloat(dureeMach.getText()));
-                        m.setEtat(etatMach.getValue());
-                        m.setRefEquipement(refMach.getText());
-                    }
-                }
-                Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach,
-                        refMach); // Redessine l'atelier après la modification
+                // Récupération des valeurs des champs
+                TextField coutHMach = principalVue.getCoutHMach();
+                TextField dureeMach = principalVue.getDureeMach();
+                ComboBox<EtatMachine> etatMach = principalVue.getEtatMach();
+
+                updateMachine(tempRef.get(), refMach.getText(), dMach.getText(),
+                        coutHMach.getText(), dureeMach.getText(), etatMach.getValue());
+                dessinerAtelier();
             }
         }
     }
 
-    public static void suppression(TextField dMach, TextField coutHMach, TextField dureeMach,
-            ComboBox<EtatMachine> etatMach, TextField refMach, ArrayList<Machine> machines, Pane planAtelier) {
+    public void supprimerMachine() {
+        TextField dMach = principalVue.getDMach();
+        TextField refMach = principalVue.getRefMach();
+
         if (dMach.getText().isEmpty()) {
             // Affiche une alerte si aucun équipement n'est sélectionné
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Avertissement");
-            alert.setHeaderText("Aucun équipement sélectionné");
-            alert.setContentText("Veuillez sélectionner un équipement à supprimer.");
-            alert.showAndWait();
+            principalVue.afficherAlerte(Alert.AlertType.WARNING,
+                    "Avertissement",
+                    "Aucun équipement sélectionné",
+                    "Veuillez sélectionner un équipement à supprimer.");
         } else {
             // Supprime l'équipement sélectionné
-            machines.removeIf(m -> m.getRefEquipement().equals(refMach.getText()));
-            dMach.clear();
-            coutHMach.clear();
-            dureeMach.clear();
-            refMach.clear();
-            etatMach.setValue(null);
+            deleteMachine(refMach.getText());
+            principalVue.viderChamps();
 
-            Atelier.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach,
-                    refMach); // Redessine l'atelier après la suppression
+            // Redessine l'atelier après la suppression
+            dessinerAtelier();
+            // Affiche une alerte de confirmation
+            principalVue.afficherAlerte(Alert.AlertType.INFORMATION,
+                    "Confirmation",
+                    "Équipement supprimé",
+                    "L'équipement a été supprimé avec succès.");
         }
+    }
+
+    public void updateMachine(String ancienneRef, String nouvelleRef, String designation,
+            String coutHoraireStr, String dureeStr, EtatMachine etat) {
+        // Met à jour les informations de la machine correspondante
+        for (Machine m : machines) {
+            if (m.getRefEquipement().equals(ancienneRef)) {
+                m.setRefEquipement(nouvelleRef);
+                m.setdEquipement(designation);
+                m.setCoutHoraire(Float.parseFloat(coutHoraireStr));
+                m.setDureeUtil(Float.parseFloat(dureeStr));
+                m.setEtat(etat);
+            }
+        }
+    }
+
+    public void deleteMachine(String refMach) {
+        machines.removeIf(m -> m.getRefEquipement().equals(refMach));
     }
 }

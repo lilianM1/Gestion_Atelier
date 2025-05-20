@@ -19,11 +19,22 @@ import javafx.stage.*;
  */
 public class PrincipalVue {
     // ========================== Attributs ================================
-    // Cette section est vide dans le code original, prête pour de futurs attributs
+    private Stage primaryStage; // Fenêtre principale de l'application
+    private Pane planAtelier; // Plan pour dessiner l'atelier
+    private TextField refMach, dMach, coutHMach, dureeMach; // Champs pour les info de la machine
+    private ComboBox<EtatMachine> etatMach; // Combo box pour l'état de la machine
+
+    private ArrayList<Machine> machines = new ArrayList<>();
+    private ArrayList<Produit> produits = new ArrayList<>();
+    private ArrayList<Poste> postes = new ArrayList<>();
+
+    private PrincipalControleur controleur;
 
     // ========================== Constructeurs ============================
-    // Cette section est vide dans le code original, prête pour de futurs
-    // constructeurs
+    public PrincipalVue() {
+        this.planAtelier = new Pane();
+        this.controleur = new PrincipalControleur(this, machines, produits, postes);
+    }
 
     // ========================== Méthodes =================================
     /**
@@ -31,36 +42,33 @@ public class PrincipalVue {
      * Crée et configure l'interface utilisateur avec menus, boutons et zones
      * d'affichage
      */
-    public static void mainWindow() {
+    public void mainWindow() {
         // Création de la fenêtre principale
-        Stage primaryStage = new Stage();
+        primaryStage = new Stage();
         primaryStage.setTitle("Gestion d'atelier");
-
-        // Création d'un panneau pour visualiser l'atelier
-        Pane planAtelier = new Pane();
 
         // Création des champs de texte pour afficher les informations de la machine
         // sélectionnée
         // Ces champs sont initialement en lecture seule
-        TextField refMach = new TextField();
+        refMach = new TextField();
         refMach.setEditable(false);
         refMach.setOnMouseClicked(event -> {
             // Lorsqu'on clique sur le champ de référence, on le sélectionne
             PrincipalControleur.selectChamp(refMach);
         });
-        TextField dMach = new TextField();
+        dMach = new TextField();
         dMach.setEditable(false);
         dMach.setOnMouseClicked(event -> {
             // Lorsqu'on clique sur le champ de désignation, on le sélectionne
             PrincipalControleur.selectChamp(dMach);
         });
-        TextField coutHMach = new TextField();
+        coutHMach = new TextField();
         coutHMach.setEditable(false);
         coutHMach.setOnMouseClicked(event -> {
             // Lorsqu'on clique sur le champ de coût horaire, on le sélectionne
             PrincipalControleur.selectChamp(coutHMach);
         });
-        TextField dureeMach = new TextField();
+        dureeMach = new TextField();
         dureeMach.setEditable(false);
         dureeMach.setOnMouseClicked(event -> {
             // Lorsqu'on clique sur le champ de durée d'utilisation, on le sélectionne
@@ -68,7 +76,7 @@ public class PrincipalVue {
         });
 
         // ComboBox pour l'état de la machine, initialement désactivée
-        ComboBox<EtatMachine> etatMach = new ComboBox<EtatMachine>();
+        etatMach = new ComboBox<EtatMachine>();
         etatMach.getItems().addAll(EtatMachine.values());
         etatMach.setDisable(true);
 
@@ -83,24 +91,20 @@ public class PrincipalVue {
         // ------------------------- Sous-menu "Nouveau" -------------------------
         // Option pour créer un nouveau produit
         MenuItem nouveauProduit = new MenuItem("Produit");
-        ArrayList<Produit> produits = new ArrayList<Produit>();
         nouveauProduit.setOnAction(e -> {
-            PrincipalControleur.creerProduit(produits);
+            controleur.creerProduit();
         });
 
         // Option pour créer une nouvelle machine
         MenuItem nouveauMachine = new MenuItem("Machine");
-        ArrayList<Machine> machines = new ArrayList<Machine>();
         nouveauMachine.setOnAction(e -> {
-            PrincipalControleur.creerMachine(machines, planAtelier, dMach, coutHMach, dureeMach, etatMach,
-                    refMach);
+            controleur.creerMachine();
         });
 
         // Option pour créer un nouveau poste de travail
         MenuItem nouveauPoste = new MenuItem("Poste de travail");
-        ArrayList<Poste> postes = new ArrayList<Poste>();
         nouveauPoste.setOnAction(e -> {
-            PrincipalControleur.creerPoste(postes, machines);
+            controleur.creerPoste();
         });
 
         // Création du sous-menu "Equipement" regroupant machines et postes
@@ -118,19 +122,19 @@ public class PrincipalVue {
         // Option pour afficher la liste des machines
         MenuItem afficherMachines = new MenuItem("Machines");
         afficherMachines.setOnAction(e -> {
-            PrincipalControleur.afficherMachines(machines);
+            controleur.afficherMachines();
         });
 
         // Option pour afficher la liste des produits
         MenuItem afficherProduits = new MenuItem("Produits");
         afficherProduits.setOnAction(e -> {
-            PrincipalControleur.afficherProduits(produits);
+            controleur.afficherProduits();
         });
 
         // Option pour afficher la liste des postes
         MenuItem afficherPostes = new MenuItem("Postes");
         afficherPostes.setOnAction(e -> {
-            PrincipalControleur.afficherPostes(postes);
+            controleur.afficherPostes();
         });
 
         // Ajout des items au menu "Afficher"
@@ -143,8 +147,7 @@ public class PrincipalVue {
         // Option pour dessiner l'atelier dans le panneau central
         MenuItem dessinerAtelier = new MenuItem("Dessiner atelier");
         dessinerAtelier.setOnAction(e -> {
-            PrincipalControleur.dessinerAtelier(planAtelier, machines, dMach, coutHMach, dureeMach, etatMach,
-                    refMach);
+            controleur.dessinerAtelier();
         });
 
         // -----------------------------------------------------------------------
@@ -160,7 +163,7 @@ public class PrincipalVue {
         // Option pour calculer la fiabilité des machines
         MenuItem optimisationItem = new MenuItem("Calcul fiabilité machines");
         optimisationItem.setOnAction(e -> {
-            PrincipalControleur.fiabAtelier();
+            controleur.calculerFiabilite();
         });
         optimisationMenu.getItems().add(optimisationItem);
 
@@ -171,7 +174,7 @@ public class PrincipalVue {
         MenuItem fullscreenItem = new MenuItem("Plein écran");
         primaryStage.setFullScreenExitHint(""); // Masque le message d'indication pour quitter le plein écran
         fullscreenItem.setOnAction(e -> {
-            PrincipalControleur.pleinEcran(primaryStage);
+            controleur.basculerPleinEcran();
         });
 
         parametresMenu.getItems().addAll(
@@ -196,12 +199,11 @@ public class PrincipalVue {
         MenuButton creerEq = new MenuButton("Nouveau");
         MenuItem creerMachine = new MenuItem("Machine");
         creerMachine.setOnAction(e -> {
-            PrincipalControleur.creerMachine(machines, planAtelier, dMach, coutHMach, dureeMach, etatMach,
-                    refMach);
+            controleur.creerMachine();
         });
         MenuItem creerPoste = new MenuItem("Poste de travail");
         creerPoste.setOnAction(e -> {
-            PrincipalControleur.creerPoste(postes, machines);
+            controleur.creerPoste();
         });
         creerEq.getItems().addAll(creerMachine, creerPoste);
 
@@ -226,13 +228,12 @@ public class PrincipalVue {
 
         // Gestion de l'événement du bouton "Modifier"/"Valider"
         modifierButton.setOnAction(e -> {
-            PrincipalControleur.modification(dMach, coutHMach, dureeMach, etatMach, refMach, modifierButton,
-                    machines, planAtelier, tempRef);
+            controleur.modifierMachine(modifierButton, tempRef);
         });
 
         // Gestion de l'événement du bouton "Supprimer"
         supprimerButton.setOnAction(e -> {
-            PrincipalControleur.suppression(dMach, coutHMach, dureeMach, etatMach, refMach, machines, planAtelier);
+            controleur.supprimerMachine();
         });
 
         // Stylisation du panneau d'informations
@@ -255,5 +256,103 @@ public class PrincipalVue {
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true); // Démarre en plein écran
         primaryStage.show(); // Affiche la fenêtre
+    }
+
+    public void dessinerAtelier() {
+        controleur.dessinerAtelier();
+    }
+
+    // Méthode appelée par le contrôleur pour dessiner les machines
+    public void afficherMachinesSurPlan(ArrayList<Machine> machines) {
+        // Effacement du contenu précédent pour éviter les superpositions
+        planAtelier.getChildren().clear();
+        // Parcours de toutes les machines à placer sur le plan
+        for (Machine m : machines) {
+            // Création d'un bouton représentant la machine, identifié par sa référence
+            Button machineButton = new Button(m.getRefEquipement());
+            machineButton.setMnemonicParsing(false); // Désactive l'interprétation des caractères spéciaux (ex: '_')
+
+            // Configuration de l'action lors du clic: afficher les détails de la machine
+            machineButton.setOnAction(e -> {
+                afficherDetailsMachine(m);
+            });
+
+            // Positionnement du bouton sur le plan selon les coordonnées de la machine
+            machineButton.setLayoutX(m.getPosX());
+            machineButton.setLayoutY(m.getPosY());
+
+            // Ajout du bouton au panneau d'affichage
+            planAtelier.getChildren().add(machineButton);
+        }
+    }
+
+    // Affiche les détails d'une machine dans les champs de l'interface
+    public void afficherDetailsMachine(Machine m) {
+        dMach.setText(m.getdEquipement()); // Désignation/nom
+        coutHMach.setText(String.valueOf(m.getCoutHoraire())); // Coût horaire
+        dureeMach.setText(String.valueOf(m.getDureeUtil())); // Durée d'utilisation
+        etatMach.setValue(m.getEtat()); // État actuel (EN_MARCHE, EN_PANNE, etc.)
+        refMach.setText(m.getRefEquipement()); // Référence unique
+    }
+
+    // Méthodes pour accéder aux composants d'interface
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public Pane getPlanAtelier() {
+        return planAtelier;
+    }
+
+    public TextField getRefMach() {
+        return refMach;
+    }
+
+    public TextField getDMach() {
+        return dMach;
+    }
+
+    public TextField getCoutHMach() {
+        return coutHMach;
+    }
+
+    public TextField getDureeMach() {
+        return dureeMach;
+    }
+
+    public ComboBox<EtatMachine> getEtatMach() {
+        return etatMach;
+    }
+
+    // Définir l'accessibilité des champs de texte et combobox
+    public void setFieldsEditable(boolean editable) {
+        dMach.setEditable(editable);
+        coutHMach.setEditable(editable);
+        dureeMach.setEditable(editable);
+        etatMach.setDisable(!editable);
+        refMach.setEditable(editable);
+    }
+
+    // Changer le texte du bouton modifier
+    public void setModifierButtonText(Button button, String text) {
+        button.setText(text);
+    }
+
+    // Méthode pour vider les champs d'information
+    public void viderChamps() {
+        dMach.clear();
+        coutHMach.clear();
+        dureeMach.clear();
+        refMach.clear();
+        etatMach.setValue(null);
+    }
+
+    // Affiche une alerte
+    public void afficherAlerte(Alert.AlertType type, String titre, String entete, String contenu) {
+        Alert alert = new Alert(type);
+        alert.setTitle(titre);
+        alert.setHeaderText(entete);
+        alert.setContentText(contenu);
+        alert.showAndWait();
     }
 }

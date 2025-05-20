@@ -7,7 +7,6 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -422,59 +421,6 @@ public class Atelier {
 
         // Affichage de la fenêtre de progression
         loadingStage.show();
-    }
-
-    /**
-     * Affiche graphiquement les machines de l'atelier dans le panneau spécifié.
-     * Cette méthode:
-     * 1. Efface l'affichage précédent
-     * 2. Crée un bouton pour chaque machine aux coordonnées spécifiées
-     * 3. Configure les événements pour afficher les informations détaillées lors de
-     * la sélection
-     * 
-     * @param planAtelier Panneau graphique où dessiner les machines
-     * @param machines    Liste des machines à dessiner
-     * @param dMach       Champ texte pour afficher la désignation de la machine
-     *                    sélectionnée
-     * @param coutHMach   Champ texte pour afficher le coût horaire de la machine
-     *                    sélectionnée
-     * @param dureeMach   Champ texte pour afficher la durée d'utilisation de la
-     *                    machine sélectionnée
-     * @param etatMach    ComboBox pour afficher/modifier l'état de la machine
-     *                    sélectionnée
-     * @param refMach     Champ texte pour afficher la référence de la machine
-     *                    sélectionnée
-     */
-    public static void dessinerAtelier(Pane planAtelier, ArrayList<Machine> machines, TextField dMach,
-            TextField coutHMach, TextField dureeMach, ComboBox<EtatMachine> etatMach, TextField refMach) {
-
-        // Effacement du contenu précédent pour éviter les superpositions
-        planAtelier.getChildren().clear();
-
-        // Parcours de toutes les machines à placer sur le plan
-        for (Machine m : machines) {
-            // Création d'un bouton représentant la machine, identifié par sa référence
-            Button machineButton = new Button(m.getRefEquipement());
-            machineButton.setMnemonicParsing(false); // Désactive l'interprétation des caractères spéciaux (ex: '_')
-
-            // Configuration de l'action lors du clic: afficher les détails de la machine
-            machineButton.setOnAction(e -> {
-                // Remplissage des champs d'information avec les données de la machine
-                // sélectionnée
-                dMach.setText(m.getdEquipement()); // Désignation/nom
-                coutHMach.setText(String.valueOf(m.getCoutHoraire())); // Coût horaire
-                dureeMach.setText(String.valueOf(m.getDureeUtil())); // Durée d'utilisation
-                etatMach.setValue(m.getEtat()); // État actuel (EN_MARCHE, EN_PANNE, etc.)
-                refMach.setText(m.getRefEquipement()); // Référence unique
-            });
-
-            // Positionnement du bouton sur le plan selon les coordonnées de la machine
-            machineButton.setLayoutX(m.getPosX());
-            machineButton.setLayoutY(m.getPosY());
-
-            // Ajout du bouton au panneau d'affichage
-            planAtelier.getChildren().add(machineButton);
-        }
     }
 
     // ========================== Getters/Setters ==========================

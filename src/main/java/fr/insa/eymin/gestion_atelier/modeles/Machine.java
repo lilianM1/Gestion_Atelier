@@ -5,12 +5,6 @@
  */
 package fr.insa.eymin.gestion_atelier.modeles;
 
-import java.util.ArrayList;
-
-import fr.insa.eymin.gestion_atelier.vues.MachineVue;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.*;
 
 public class Machine extends Equipement {
     // ========================== Attributs ================================
@@ -75,20 +69,6 @@ public class Machine extends Equipement {
         this.coutHoraire = 0;
         this.dureeUtil = 0;
         this.etatMachine = null;
-    }
-
-    /**
-     * Méthode statique permettant de créer une nouvelle machine via une interface
-     * graphique
-     * Ouvre une fenêtre de dialogue pour saisir les propriétés de la machine
-     */
-    public static ArrayList<Machine> creerMachine(ArrayList<Machine> machines, Pane planAtelier, TextField dMach,
-            TextField coutHMach, TextField dureeMach, ComboBox<EtatMachine> etatMach, TextField refMach) {
-
-        // Création de la fenêtre
-        MachineVue.creation(machines, planAtelier, dMach, coutHMach, dureeMach, etatMach, refMach);
-
-        return machines;
     }
 
     // ========================== Getters/Setters ==========================
