@@ -87,4 +87,15 @@ public class AtelierControleur {
         // Démarrage de la tâche dans un thread séparé
         new Thread(calculTask).start();
     }
+
+    /**
+     * Crée un nouvel atelier en réinitialisant le modèle et la vue
+     */
+    public void creerNouveauAtelier() {
+        // Réinitialisation du modèle et de la vue
+        modele = new Atelier();
+        vue = new AtelierVue();
+        // Affichage de la vue
+        vue.afficherFenetreCreation();
+    }
 }

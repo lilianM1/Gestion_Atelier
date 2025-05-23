@@ -25,6 +25,9 @@ public class Atelier {
      */
     private ArrayList<Equipement> equipements;
 
+    private float longX; // Longueur de l'atelier en X
+    private float longY; // Longueur de l'atelier en Y
+
     // ========================== Constructeurs ============================
 
     /**
@@ -204,7 +207,6 @@ public class Atelier {
         HashMap<String, ArrayList<Float>> fiabiliteMulti = (HashMap<String, ArrayList<Float>>) resultats
                 .get("fiabiliteJournaliere");
         Map<String, Float> fiabiliteMoyenne = (Map<String, Float>) resultats.get("fiabiliteMoyenne");
-        int tempsTotal = (int) resultats.get("tempsTotal");
 
         // Création du workbook Excel
         Workbook workbook = new XSSFWorkbook();

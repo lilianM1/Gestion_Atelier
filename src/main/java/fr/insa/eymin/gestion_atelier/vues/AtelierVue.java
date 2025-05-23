@@ -8,6 +8,7 @@ import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -43,6 +44,25 @@ public class AtelierVue {
         loadingStage.show();
 
         return loadingStage;
+    }
+
+    /**
+     * Affiche la fenetre de création d'atelier
+     */
+    public void afficherFenetreCreation() {
+        // Création de la fenêtre
+        Stage creerAtelierStage = new Stage();
+        creerAtelierStage.setTitle("Nouvel atelier");
+        creerAtelierStage.getIcons().add(new Image("file:src\\main\\ressources\\images\\icon.png"));
+        creerAtelierStage.setResizable(false);
+        creerAtelierStage.initModality(Modality.APPLICATION_MODAL);
+
+        
+
+        // Configuration de la scène et affichage
+        Scene scene = new Scene(new StackPane(), 300, 200);
+        creerAtelierStage.setScene(scene);
+        creerAtelierStage.show();
     }
 
     /**

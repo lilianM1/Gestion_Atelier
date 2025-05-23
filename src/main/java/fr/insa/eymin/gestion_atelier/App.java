@@ -11,7 +11,7 @@ public class App extends Application {
         Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
         // Crée une instance de la vue principale
         PrincipalVue app = new PrincipalVue();
-        app.mainWindow();
+        app.startWindow();
     }
 
     // Méthode principale

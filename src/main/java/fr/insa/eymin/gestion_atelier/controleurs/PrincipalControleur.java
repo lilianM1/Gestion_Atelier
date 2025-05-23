@@ -5,12 +5,15 @@ import java.util.concurrent.atomic.AtomicReference;
 import fr.insa.eymin.gestion_atelier.modeles.Atelier;
 import fr.insa.eymin.gestion_atelier.modeles.EtatMachine;
 import fr.insa.eymin.gestion_atelier.modeles.Machine;
+import fr.insa.eymin.gestion_atelier.modeles.Operation;
 import fr.insa.eymin.gestion_atelier.modeles.Poste;
 import fr.insa.eymin.gestion_atelier.modeles.Produit;
 import fr.insa.eymin.gestion_atelier.vues.AtelierVue;
 import fr.insa.eymin.gestion_atelier.vues.MachineVue;
 import fr.insa.eymin.gestion_atelier.vues.PosteVue;
 import fr.insa.eymin.gestion_atelier.vues.PrincipalVue;
+import fr.insa.eymin.gestion_atelier.vues.ProduitVue;
+import fr.insa.eymin.gestion_atelier.vues.OperationVue;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -22,15 +25,17 @@ public class PrincipalControleur {
     private ArrayList<Machine> machines;
     private ArrayList<Produit> produits = new ArrayList<>();
     private ArrayList<Poste> postes = new ArrayList<>();
+    private ArrayList<Operation> operations = new ArrayList<>();
 
     // =============================================================================
     // Constructeur
     public PrincipalControleur(PrincipalVue principalVue, ArrayList<Machine> machines,
-            ArrayList<Produit> produits, ArrayList<Poste> postes) {
+            ArrayList<Produit> produits, ArrayList<Poste> postes, ArrayList<Operation> operations) {
         this.principalVue = principalVue;
         this.machines = machines;
         this.produits = produits;
         this.postes = postes;
+        this.operations = operations;
     }
 
     public static void selectChamp(TextField champ) {
@@ -42,7 +47,8 @@ public class PrincipalControleur {
 
     public void creerProduit() {
         ProduitControleur controleur = new ProduitControleur(produits);
-        controleur.afficherFenetreCreation();
+        ProduitVue vue = new ProduitVue(controleur);
+        vue.afficherFenetreCreation();
     }
 
     public void creerMachine() {
@@ -52,7 +58,26 @@ public class PrincipalControleur {
     }
 
     public void creerPoste() {
-        PosteVue.fenetreCreationPoste(machines, postes);
+        PosteControleur controleur = new PosteControleur(postes, machines);
+        PosteVue vue = new PosteVue(controleur);
+        vue.afficherFenetreCreation();
+    }
+
+    public void creerOperation() {
+        // Récupérez les machines et postes depuis votre modèle principal
+        ArrayList<Machine> machines = this.machines;
+        ArrayList<Poste> postes = this.postes;
+
+        // Créez le contrôleur avec toutes les données nécessaires
+        OperationControleur controleur = new OperationControleur(operations);
+
+        // Ajoutez une méthode pour définir les machines et postes si vous ne modifiez
+        // pas le constructeur
+        controleur.setMachines(machines);
+        controleur.setPostes(postes);
+
+        OperationVue vue = new OperationVue(controleur);
+        vue.afficherFenetreCreation();
     }
 
     // =================================================================================
@@ -79,6 +104,13 @@ public class PrincipalControleur {
         System.out.println();
     }
 
+    public void afficherOperations() {
+        for (Operation o : operations) {
+            o.afficherOperation();
+        }
+        System.out.println();
+    }
+
     // =================================================================================
     // Méthodes de gestion de l'atelier
 
@@ -92,6 +124,20 @@ public class PrincipalControleur {
     public void dessinerAtelier() {
         principalVue.afficherMachinesSurPlan(machines);
     }
+
+    public void saveAtelier() {
+        // Atelier atelier = new Atelier(machines, postes, produits, operations);
+        // atelier.sauvegarderAtelier();
+    }
+
+    public void creerNouveauAtelier() {
+        Atelier modele = new Atelier();
+        AtelierVue vue = new AtelierVue();
+        AtelierControleur controleur = new AtelierControleur(modele, vue);
+        controleur.creerNouveauAtelier();
+    }
+
+
 
     // =================================================================================
     // Méthodes de gestion de l'interface

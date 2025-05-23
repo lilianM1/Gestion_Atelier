@@ -2,6 +2,7 @@ package fr.insa.eymin.gestion_atelier.vues;
 
 import java.util.ArrayList;
 
+import atlantafx.base.theme.Styles;
 import fr.insa.eymin.gestion_atelier.controleurs.PosteControleur;
 import fr.insa.eymin.gestion_atelier.modeles.Machine;
 import fr.insa.eymin.gestion_atelier.modeles.Poste;
@@ -42,6 +43,7 @@ public class PosteVue {
         // Liste des machines disponibles
         ListView<String> machinesListView = new ListView<>();
         machinesListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        machinesListView.getStyleClass().add(Styles.STRIPED);
 
         // Remplir la liste des machines
         ArrayList<Machine> machines = controleur.getMachines();
@@ -53,6 +55,7 @@ public class PosteVue {
 
         // Boutons
         Button creerButton = new Button("Créer");
+        creerButton.getStyleClass().add(Styles.ACCENT);
         Button terminerButton = new Button("Terminer");
 
         // Action du bouton Créer
@@ -111,7 +114,7 @@ public class PosteVue {
         gridPane.add(refPosteField, 1, 0);
         gridPane.add(new Label("Désignation:"), 0, 1);
         gridPane.add(dPosteField, 1, 1);
-        gridPane.add(new Label("Machines:"), 0, 2);
+        gridPane.add(new Label("Machines:\n(Sélectionner\nplusieurs machines\navec CTRL+clic)"), 0, 2);
         gridPane.add(machinesListView, 1, 2);
 
         HBox buttonBox = new HBox(10, terminerButton, creerButton);

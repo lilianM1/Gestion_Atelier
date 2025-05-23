@@ -1,6 +1,6 @@
 package fr.insa.eymin.gestion_atelier.vues;
 
-
+import atlantafx.base.theme.Styles;
 import fr.insa.eymin.gestion_atelier.controleurs.ProduitControleur;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -16,14 +16,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class ProduitVue {
-    
+
     private ProduitControleur controleur;
-    
+
     // Constructeur
     public ProduitVue(ProduitControleur controleur) {
         this.controleur = controleur;
     }
-    
+
     /**
      * Affiche la fenêtre de création d'un nouveau produit
      */
@@ -44,16 +44,17 @@ public class ProduitVue {
 
         // Création des boutons
         Button creerButton = new Button("Créer");
+        creerButton.getStyleClass().add(Styles.ACCENT);
         Button terminerButton = new Button("Terminer");
 
         // Action du bouton Créer
         creerButton.setOnAction(e -> {
             String codeProduit = codeProduitField.getText();
             String dProduit = dProduitField.getText();
-            
+
             // Appel du contrôleur pour gérer la création du produit
             boolean succes = controleur.creerProduit(codeProduit, dProduit);
-            
+
             if (succes) {
                 // Efface les champs si la création a réussi
                 codeProduitField.clear();
@@ -90,7 +91,7 @@ public class ProduitVue {
         creerProdStage.setScene(scene);
         creerProdStage.show();
     }
-    
+
     /**
      * Affiche une alerte d'erreur
      */

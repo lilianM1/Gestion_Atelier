@@ -1,15 +1,34 @@
 package fr.insa.eymin.gestion_atelier.vues;
 
 import java.util.ArrayList;
+import java.util.Stack;
 import java.util.concurrent.atomic.AtomicReference;
 
 import fr.insa.eymin.gestion_atelier.controleurs.PrincipalControleur;
 import fr.insa.eymin.gestion_atelier.modeles.*;
+import javafx.animation.Timeline;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.layout.*;
 import javafx.stage.*;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2AL;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.feather.Feather;
+import javafx.scene.input.KeyCombination;
+import atlantafx.base.controls.Notification;
+import atlantafx.base.theme.Styles;
+import atlantafx.base.util.Animations;
+import atlantafx.base.util.BBCodeParser;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2OutlinedAL;
+import javafx.util.Duration;
 
 /**
  * Classe Gui qui gère l'interface graphique de l'application de gestion
@@ -17,7 +36,7 @@ import javafx.stage.*;
  * Cette classe contient les méthodes pour l'affichage et l'interaction avec
  * l'interface utilisateur
  */
-public class PrincipalVue {
+public class PrincipalVue extends StackPane {
     // ========================== Attributs ================================
     private Stage primaryStage; // Fenêtre principale de l'application
     private Pane planAtelier; // Plan pour dessiner l'atelier
@@ -27,13 +46,17 @@ public class PrincipalVue {
     private ArrayList<Machine> machines = new ArrayList<>();
     private ArrayList<Produit> produits = new ArrayList<>();
     private ArrayList<Poste> postes = new ArrayList<>();
+    private ArrayList<Operation> operations = new ArrayList<>();
 
     private PrincipalControleur controleur;
+
+    private StackPane rootContainer; // Conteneur principal
 
     // ========================== Constructeurs ============================
     public PrincipalVue() {
         this.planAtelier = new Pane();
-        this.controleur = new PrincipalControleur(this, machines, produits, postes);
+        this.controleur = new PrincipalControleur(this, machines, produits, postes, operations);
+        this.rootContainer = new StackPane();
     }
 
     // ========================== Méthodes =================================
@@ -85,8 +108,44 @@ public class PrincipalVue {
 
         // =-=-=-=-=-=-=-=-=-=-=-=-= Menu "Gestion" =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         Menu gestionMenu = new Menu("Gestion");
-        Menu sousMenuNouveau = new Menu("Nouveau");
+        Menu sousMenuNouveau = new Menu("Nouveau", new FontIcon(Feather.PLUS));
         Menu sousMenuAfficher = new Menu("Afficher");
+
+        // =-=-=-=-=-=-=-=-=-=-=-=-=-=-= Menu "Fichier" =-=-=-=-=-=-=-=-=-=-=-=-=
+        Menu fichierMenu = new Menu("Fichier");
+        MenuItem nvAtelier = new MenuItem("Nouvel Atelier");
+        nvAtelier.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
+        // TODO: ajouter l'action pour créer un nouvel atelier
+        MenuItem ouvrirAtelier = new MenuItem("Ouvrir Atelier", new FontIcon(Feather.FOLDER));
+        ouvrirAtelier.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
+        // TODO: ajouter l'action pour ouvrir un atelier
+        MenuItem saveAtelier = new MenuItem("Sauvegarder Atelier", new FontIcon(Feather.SAVE));
+        saveAtelier.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
+        // TODO: ajouter l'action pour sauvegarder l'atelier
+        saveAtelier.setOnAction(e -> {
+            // controleur.sauvegarderAtelier();
+        });
+        MenuItem saveAsAtelier = new MenuItem("Sauvegarder sous");
+        saveAsAtelier.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN,
+                KeyCombination.SHIFT_DOWN));
+        // TODO: ajouter l'action pour sauvegarder sous
+        MenuItem quitter = new MenuItem("Quitter");
+        quitter.setOnAction(e -> {
+            // Action pour quitter l'application
+            System.exit(0);
+        });
+
+        fichierMenu.getItems().addAll(
+                nvAtelier,
+                new SeparatorMenuItem(),
+                ouvrirAtelier,
+                new SeparatorMenuItem(),
+                saveAtelier,
+                saveAsAtelier,
+                new SeparatorMenuItem(),
+                quitter);
+
+        // ======================================================================
 
         // ------------------------- Sous-menu "Nouveau" -------------------------
         // Option pour créer un nouveau produit
@@ -113,10 +172,17 @@ public class PrincipalVue {
                 nouveauMachine,
                 nouveauPoste);
 
+        // Option pour créer une nouvelle opération
+        MenuItem nouvelleOperation = new MenuItem("Opération");
+        nouvelleOperation.setOnAction(e -> {
+            controleur.creerOperation();
+        });
+
         // Ajout des items au menu "Nouveau"
         sousMenuNouveau.getItems().addAll(
+                sousMenuNvEq,
                 nouveauProduit,
-                sousMenuNvEq);
+                nouvelleOperation);
 
         // ------------------------- Sous-menu "Afficher" -------------------------
         // Option pour afficher la liste des machines
@@ -137,11 +203,18 @@ public class PrincipalVue {
             controleur.afficherPostes();
         });
 
+        // Option pour afficher la liste des opérations
+        MenuItem afficherOperations = new MenuItem("Opérations");
+        afficherOperations.setOnAction(e -> {
+            controleur.afficherOperations();
+        });
+
         // Ajout des items au menu "Afficher"
         sousMenuAfficher.getItems().addAll(
                 afficherProduits,
                 afficherMachines,
-                afficherPostes);
+                afficherPostes,
+                afficherOperations);
 
         // ------------------------- Menu "Dessiner" -----------------------------
         // Option pour dessiner l'atelier dans le panneau central
@@ -164,7 +237,8 @@ public class PrincipalVue {
         Menu optimisationMenu = new Menu("Optimisation");
 
         // Option pour calculer la fiabilité des machines
-        MenuItem optimisationItem = new MenuItem("Calcul fiabilité machines");
+        MenuItem optimisationItem = new MenuItem("Calcul fiabilité machines",
+                new FontIcon(Material2AL.ANALYTICS));
         optimisationItem.setOnAction(e -> {
             controleur.calculerFiabilite();
         });
@@ -174,7 +248,8 @@ public class PrincipalVue {
         Menu parametresMenu = new Menu("Paramètres");
 
         // Option pour basculer en mode plein écran
-        MenuItem fullscreenItem = new MenuItem("Plein écran");
+        MenuItem fullscreenItem = new MenuItem("Plein écran", new FontIcon(Feather.MAXIMIZE));
+        fullscreenItem.setAccelerator(new KeyCodeCombination(KeyCode.F11));
         primaryStage.setFullScreenExitHint(""); // Masque le message d'indication pour quitter le plein écran
         fullscreenItem.setOnAction(e -> {
             controleur.basculerPleinEcran();
@@ -186,6 +261,7 @@ public class PrincipalVue {
         // ---------------------------------------------------------------------
         // Ajout des menus à la barre de menu
         menuBar.getMenus().addAll(
+                fichierMenu,
                 gestionMenu,
                 optimisationMenu,
                 parametresMenu);
@@ -212,18 +288,27 @@ public class PrincipalVue {
         creerProduit.setOnAction(e -> {
             controleur.creerProduit();
         });
-        creerEq.getItems().addAll(creerMachine, creerPoste, creerProduit);
+        MenuItem creerOperation = new MenuItem("Opération");
+        creerOperation.setOnAction(e -> {
+            controleur.creerOperation();
+        });
+        Menu sousMenu = new Menu("Equipement");
+        sousMenu.getItems().addAll(creerMachine, creerPoste);
+
+        creerEq.getItems().addAll(sousMenu, creerProduit, creerOperation);
+
+        Button btn = new Button("SHOW");
 
         // Organisation horizontale des boutons
-        HBox boutonsHb = new HBox(modifierButton, supprimerButton, creerEq);
+        HBox boutonsHb = new HBox(modifierButton, supprimerButton, creerEq, btn);
         boutonsHb.setSpacing(10);
 
         // Configuration du bas du panneau d'informations
         VBox basInfo = new VBox();
+        // TODO: ajouter des informations supplémentaires sur les gammes
+
         basInfo.getChildren().addAll(
-                new Label("Sélectionnez une machine pour afficher ses informations"),
-                new Label("Pour modifier une machine, cliquez sur le bouton 'Modifier'"),
-                new Label("Pour créer un nouvel équipement, utilisez le menu déroulant"));
+                new Label("Informations sur l'Atelier :"));
 
         // Panneau d'informations sur l'équipement sélectionné
         VBox infoDroite = new VBox();
@@ -256,7 +341,8 @@ public class PrincipalVue {
         });
 
         // Stylisation du panneau d'informations
-        infoDroite.setStyle("-fx-background-color:#eef1f5;");
+        // infoDroite.setStyle("-fx-background-color:#eef1f5;");
+        infoDroite.setStyle("-fx-background-color: #e5e9f0;"); // Couleur de fond
         infoDroite.setPadding(new javafx.geometry.Insets(10));
         infoDroite.setSpacing(10);
         infoDroite.setBorder(new Border(new BorderStroke(
@@ -267,11 +353,26 @@ public class PrincipalVue {
         )));
         VBox.setVgrow(infoDroite, Priority.SOMETIMES);
 
+        SplitPane splitPane = new SplitPane();
+        splitPane.setOrientation(Orientation.HORIZONTAL);
+        splitPane.setDividerPositions(0.8); // Position du séparateur
+        splitPane.getItems().addAll(planAtelier, infoDroite); // Ajout du plan et du panneau d'infos
+
         // Assemblage final de l'interface
-        fenetre.setRight(infoDroite); // Panneau d'informations à droite
+        // fenetre.setRight(infoDroite); // Panneau d'informations à droite
         fenetre.setTop(menuBar); // Barre de menu en haut
-        fenetre.setCenter(planAtelier); // Plan de l'atelier au centre
-        Scene scene = new Scene(fenetre, 1280, 720);
+        // fenetre.setCenter(planAtelier); // Plan de l'atelier au centre
+        fenetre.setCenter(splitPane); // Panneau d'informations et plan de l'atelier
+        // Créons un StackPane qui contiendra toute l'interface et permettra de
+        // superposer des notifications
+        rootContainer.getChildren().add(fenetre); // Ajoutez votre BorderPane principal
+
+        btn.setOnAction(e -> {
+            afficherNotif("TEST", Material2AL.INFO, rootContainer);
+        });
+
+        // Puis utilisez rootContainer comme racine de votre scène
+        Scene scene = new Scene(rootContainer, 1280, 720);
 
         // Configuration finale et affichage de la fenêtre principale
         Image icon = new Image("file:src\\main\\ressources\\images\\icon.png"); // Icône de l'application
@@ -279,6 +380,43 @@ public class PrincipalVue {
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true); // Démarre en plein écran
         primaryStage.show(); // Affiche la fenêtre
+
+    }
+
+    public void startWindow() {
+        // Crée la fenêtre principale
+        mainWindow();
+
+        // Fenêtre bloquante de sélection : Nouvel atelier vierge / Ouvrir atelier
+        Stage selectionStage = new Stage();
+        selectionStage.setTitle("Sélection de l'atelier");
+        selectionStage.getIcons().add(new Image("file:src\\main\\ressources\\images\\icon.png"));
+        selectionStage.initModality(Modality.APPLICATION_MODAL); // Modale
+        selectionStage.initOwner(primaryStage); // Propriétaire de la fenêtre
+        selectionStage.setResizable(false); // Non redimensionnable
+        selectionStage.setWidth(300); // Largeur de la fenêtre
+        selectionStage.setHeight(200); // Hauteur de la fenêtre
+
+        // Création des boutons
+        Button nvAtelierButton = new Button("Nouvel Atelier");
+        nvAtelierButton.setOnAction(e -> {
+            selectionStage.close(); // Ferme la fenêtre de sélection
+            controleur.creerNouveauAtelier();
+        });
+        Button ouvrirAtelierButton = new Button("Ouvrir Atelier");
+        ouvrirAtelierButton.setOnAction(e -> {
+            // controleur.ouvrirAtelier();
+            selectionStage.close(); // Ferme la fenêtre de sélection
+        });
+        // Création de la disposition
+        VBox layout = new VBox(20);
+        layout.getChildren().addAll(nvAtelierButton, ouvrirAtelierButton);
+        layout.setAlignment(Pos.CENTER); // Centre le contenu
+        layout.setPadding(new javafx.geometry.Insets(10)); // Ajoute des marges
+        // Création de la scène
+        Scene scene = new Scene(layout);
+        selectionStage.setScene(scene); // Définit la scène
+        selectionStage.showAndWait(); // Affiche la fenêtre et attend sa fermeture
     }
 
     public void dessinerAtelier() {
@@ -347,6 +485,10 @@ public class PrincipalVue {
         return etatMach;
     }
 
+    public StackPane getRootContainer() {
+        return rootContainer;
+    }
+
     // Définir l'accessibilité des champs de texte et combobox
     public void setFieldsEditable(boolean editable) {
         dMach.setEditable(editable);
@@ -377,5 +519,36 @@ public class PrincipalVue {
         alert.setHeaderText(entete);
         alert.setContentText(contenu);
         alert.showAndWait();
+    }
+
+    public void afficherNotif(String message, Ikon icon, StackPane rootContainer) {
+        final Notification msg = new Notification(
+                message,
+                icon != null ? new FontIcon(icon) : null);
+        msg.getStyleClass().addAll(Styles.ACCENT, Styles.ELEVATED_1);
+        msg.setPrefHeight(Region.USE_PREF_SIZE);
+        msg.setPrefWidth(Region.USE_PREF_SIZE);
+        StackPane.setAlignment(msg, Pos.TOP_RIGHT);
+        StackPane.setMargin(msg, new javafx.geometry.Insets(10, 10, 0, 0));
+        msg.setOnClose(ev -> {
+            Timeline out = Animations.slideOutUp(msg, Duration.millis(250));
+            out.setOnFinished(f -> rootContainer.getChildren().remove(msg));
+            out.playFromStart();
+        });
+
+        Timeline in = Animations.slideInDown(msg, Duration.millis(250));
+        if (!rootContainer.getChildren().contains(msg)) {
+            rootContainer.getChildren().add(msg);
+        }
+        in.playFromStart();
+
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(Duration.millis(3000));
+        delay.setOnFinished(event -> {
+            Timeline out = Animations.slideOutUp(msg, Duration.millis(250));
+            out.setOnFinished(f -> rootContainer.getChildren().remove(msg));
+            out.playFromStart();
+        });
+        delay.play();
+
     }
 }

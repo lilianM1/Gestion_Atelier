@@ -17,13 +17,6 @@ public class Operation {
         this.refEquipement = null;
     }
 
-    public Operation(String refOperation, String dOperation, float dureeOp, Equipement refEquipement) {
-        this.refOperation = refOperation;
-        this.dOperation = dOperation;
-        this.dureeOp = dureeOp;
-        this.refEquipement = refEquipement;
-    }
-
     public Operation(String refOperation, String dOperation, Equipement refEquipement) {
         this.refOperation = refOperation;
         this.dOperation = dOperation;
@@ -38,6 +31,12 @@ public class Operation {
     }
 
     // ========================== Méthodes =================================
+
+    public void afficherOperation() {
+        System.out.println(
+                "Operation [refOperation=" + refOperation + ", dOperation=" + dOperation + ", dureeOp=" + dureeOp
+                        + ", refEquipement=" + refEquipement.getRefEquipement() + "]");
+    }
 
     // ========================== Getters/Setters ==========================
 

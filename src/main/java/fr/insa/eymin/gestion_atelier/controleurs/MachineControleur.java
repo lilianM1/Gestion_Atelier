@@ -14,7 +14,6 @@ public class MachineControleur {
     public MachineControleur(ArrayList<Machine> machines, PrincipalVue principalVue) {
         this.machines = machines;
         this.principalVue = principalVue;
-        ;
     }
 
     public void creationMachine(String refMach, String dMach, float posX, float posY,
@@ -31,6 +30,7 @@ public class MachineControleur {
         // Mise à jour de l'affichage de l'atelier
 
         principalVue.dessinerAtelier();
+        principalVue.afficherNotif("Machine", null, principalVue.getRootContainer());
 
     }
 
