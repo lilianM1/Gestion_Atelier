@@ -1,13 +1,6 @@
 package fr.insa.eymin.gestion_atelier.vues;
 
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.material2.Material2OutlinedAL;
-
-import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
-import atlantafx.base.util.Animations;
-import atlantafx.base.util.BBCodeParser;
-
 import fr.insa.eymin.gestion_atelier.controleurs.MachineControleur;
 import fr.insa.eymin.gestion_atelier.modeles.EtatMachine;
 import javafx.geometry.Pos;
@@ -21,7 +14,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 public class MachineVue extends StackPane {
     // private TextField refMachField;
@@ -73,12 +65,8 @@ public class MachineVue extends StackPane {
         creerButton.getStyleClass().add(Styles.ACCENT);
         Button terminerButton = new Button("Terminer");
 
-        // Action du bouton Creer
-        // TODO : ajouter une notification
-
+        // Action du bouton Créer
         creerButton.setOnAction(e -> {
-            PrincipalVue principalVue = new PrincipalVue();
-            // principalVue.afficherNotif(creerButton);
             if (refMachField.getText().isEmpty() || dMachField.getText().isEmpty()
                     || posXField.getText().isEmpty() || posYField.getText().isEmpty()
                     || coutHoraireField.getText().isEmpty() || dureeUtilField.getText().isEmpty()

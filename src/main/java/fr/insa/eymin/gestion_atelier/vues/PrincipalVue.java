@@ -1,13 +1,10 @@
 package fr.insa.eymin.gestion_atelier.vues;
 
 import java.util.ArrayList;
-import java.util.Stack;
 import java.util.concurrent.atomic.AtomicReference;
-
 import fr.insa.eymin.gestion_atelier.controleurs.PrincipalControleur;
 import fr.insa.eymin.gestion_atelier.modeles.*;
 import javafx.animation.Timeline;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -25,9 +22,6 @@ import javafx.scene.input.KeyCombination;
 import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
-import atlantafx.base.util.BBCodeParser;
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.material2.Material2OutlinedAL;
 import javafx.util.Duration;
 
 /**

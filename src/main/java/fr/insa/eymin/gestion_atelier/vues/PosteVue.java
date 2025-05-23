@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import atlantafx.base.theme.Styles;
 import fr.insa.eymin.gestion_atelier.controleurs.PosteControleur;
 import fr.insa.eymin.gestion_atelier.modeles.Machine;
-import fr.insa.eymin.gestion_atelier.modeles.Poste;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -132,9 +131,11 @@ public class PosteVue {
     }
 
     // Méthode statique temporaire pour la compatibilité avec le code existant
-    // public static void fenetreCreationPoste(ArrayList<Machine> machines, ArrayList<Poste> postes) {
-    //     PosteControleur controleur = new PosteControleur(postes, machines, principalVue);
-    //     PosteVue vue = new PosteVue(controleur);
-    //     vue.afficherFenetreCreation();
+    // public static void fenetreCreationPoste(ArrayList<Machine> machines,
+    // ArrayList<Poste> postes) {
+    // PosteControleur controleur = new PosteControleur(postes, machines,
+    // principalVue);
+    // PosteVue vue = new PosteVue(controleur);
+    // vue.afficherFenetreCreation();
     // }
 }
