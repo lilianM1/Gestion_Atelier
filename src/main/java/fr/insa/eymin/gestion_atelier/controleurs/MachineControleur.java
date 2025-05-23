@@ -2,6 +2,8 @@ package fr.insa.eymin.gestion_atelier.controleurs;
 
 import java.util.ArrayList;
 
+import org.kordamp.ikonli.feather.Feather;
+
 import fr.insa.eymin.gestion_atelier.modeles.EtatMachine;
 import fr.insa.eymin.gestion_atelier.modeles.Machine;
 import fr.insa.eymin.gestion_atelier.vues.PrincipalVue;
@@ -30,7 +32,7 @@ public class MachineControleur {
         // Mise à jour de l'affichage de l'atelier
 
         principalVue.dessinerAtelier();
-        principalVue.afficherNotif("Machine", null, principalVue.getRootContainer());
+        principalVue.afficherNotif("Machine créée avec succès", Feather.CHECK_SQUARE, principalVue.getRootContainer());
 
     }
 

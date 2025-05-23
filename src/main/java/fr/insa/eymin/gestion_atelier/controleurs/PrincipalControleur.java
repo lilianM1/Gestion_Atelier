@@ -46,7 +46,7 @@ public class PrincipalControleur {
     // Méthodes de création
 
     public void creerProduit() {
-        ProduitControleur controleur = new ProduitControleur(produits);
+        ProduitControleur controleur = new ProduitControleur(produits, principalVue);
         ProduitVue vue = new ProduitVue(controleur);
         vue.afficherFenetreCreation();
     }
@@ -58,7 +58,7 @@ public class PrincipalControleur {
     }
 
     public void creerPoste() {
-        PosteControleur controleur = new PosteControleur(postes, machines);
+        PosteControleur controleur = new PosteControleur(postes, machines, principalVue);
         PosteVue vue = new PosteVue(controleur);
         vue.afficherFenetreCreation();
     }
@@ -136,8 +136,6 @@ public class PrincipalControleur {
         AtelierControleur controleur = new AtelierControleur(modele, vue);
         controleur.creerNouveauAtelier();
     }
-
-
 
     // =================================================================================
     // Méthodes de gestion de l'interface

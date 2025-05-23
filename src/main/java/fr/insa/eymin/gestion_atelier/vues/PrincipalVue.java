@@ -526,8 +526,11 @@ public class PrincipalVue extends StackPane {
                 message,
                 icon != null ? new FontIcon(icon) : null);
         msg.getStyleClass().addAll(Styles.ACCENT, Styles.ELEVATED_1);
-        msg.setPrefHeight(Region.USE_PREF_SIZE);
-        msg.setPrefWidth(Region.USE_PREF_SIZE);
+        msg.setMaxWidth(300);
+
+        msg.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        msg.setMaxHeight(Region.USE_PREF_SIZE);
+
         StackPane.setAlignment(msg, Pos.TOP_RIGHT);
         StackPane.setMargin(msg, new javafx.geometry.Insets(10, 10, 0, 0));
         msg.setOnClose(ev -> {
@@ -542,7 +545,7 @@ public class PrincipalVue extends StackPane {
         }
         in.playFromStart();
 
-        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(Duration.millis(3000));
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(Duration.millis(2000));
         delay.setOnFinished(event -> {
             Timeline out = Animations.slideOutUp(msg, Duration.millis(250));
             out.setOnFinished(f -> rootContainer.getChildren().remove(msg));

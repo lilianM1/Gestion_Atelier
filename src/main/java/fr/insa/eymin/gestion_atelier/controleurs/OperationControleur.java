@@ -2,11 +2,14 @@ package fr.insa.eymin.gestion_atelier.controleurs;
 
 import java.util.ArrayList;
 
+import org.kordamp.ikonli.feather.Feather;
+
 import fr.insa.eymin.gestion_atelier.modeles.Equipement;
 import fr.insa.eymin.gestion_atelier.modeles.Machine;
 import fr.insa.eymin.gestion_atelier.modeles.Operation;
 import fr.insa.eymin.gestion_atelier.modeles.Poste;
 import fr.insa.eymin.gestion_atelier.vues.OperationVue;
+import fr.insa.eymin.gestion_atelier.vues.PrincipalVue;
 
 /**
  * Contrôleur pour gérer les interactions entre le modèle Operation et sa vue.
@@ -18,6 +21,8 @@ public class OperationControleur {
     private ArrayList<Machine> machines;
     private ArrayList<Poste> postes;
     private OperationVue vue;
+
+    private PrincipalVue principalVue;
 
     /**
      * Constructeur du contrôleur d'opérations
@@ -68,6 +73,8 @@ public class OperationControleur {
                 duree = 0; // sera automatiquement calculée dans le constructeur
                 Operation operation = new Operation(refOperation, dOperation, refEquipement);
                 operations.add(operation);
+                principalVue.afficherNotif("Opération créée avec succès", Feather.CHECK_SQUARE,
+                        principalVue.getRootContainer());
 
                 if (duree < 0) {
                     vue.afficherErreur("Erreur", "Durée invalide", "La durée ne peut pas être négative.");
@@ -78,7 +85,6 @@ public class OperationControleur {
                 vue.afficherErreur("Erreur", "Format incorrect", "La durée doit être un nombre.");
                 return false;
             }
-
         } catch (Exception ex) {
             vue.afficherErreur("Erreur", "Erreur lors de la création", ex.getMessage());
             return false;
