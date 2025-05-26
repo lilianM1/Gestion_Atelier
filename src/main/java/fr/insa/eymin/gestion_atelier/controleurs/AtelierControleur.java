@@ -112,6 +112,7 @@ public class AtelierControleur {
 
         principalVue.afficherNotif("Atelier créé avec succès", Feather.CHECK_SQUARE,
                 principalVue.getRootContainer());
+        principalVue.setAtelier(atelier);
         // Ferme la fenêtre principale avant de créer un nouvel atelier
         if (principalVue != null) {
             principalVue.fermerFenetre();

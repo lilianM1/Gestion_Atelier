@@ -2,6 +2,9 @@ package fr.insa.eymin.gestion_atelier.controleurs;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.kordamp.ikonli.feather.Feather;
+
 import fr.insa.eymin.gestion_atelier.modeles.Atelier;
 import fr.insa.eymin.gestion_atelier.modeles.EtatMachine;
 import fr.insa.eymin.gestion_atelier.modeles.Machine;
@@ -179,11 +182,14 @@ public class PrincipalControleur {
                 // Récupération des valeurs des champs
                 TextField coutHMach = principalVue.getCoutHMach();
                 TextField dureeMach = principalVue.getDureeMach();
+                TextField posXField = principalVue.getPosXField();
+                TextField posYField = principalVue.getPosYField();
                 ComboBox<EtatMachine> etatMach = principalVue.getEtatMach();
 
                 updateMachine(tempRef.get(), refMach.getText(), dMach.getText(),
-                        coutHMach.getText(), dureeMach.getText(), etatMach.getValue());
-                dessinerAtelier(atelier.getLongX(), atelier.getLongY());
+                        coutHMach.getText(), dureeMach.getText(), etatMach.getValue(), posXField.getText(),
+                        posYField.getText());
+                principalVue.dessinerAtelier();
             }
         }
     }
@@ -199,29 +205,30 @@ public class PrincipalControleur {
                     "Aucun équipement sélectionné",
                     "Veuillez sélectionner un équipement à supprimer.");
         } else {
-            // Supprime l'équipement sélectionné
-
             // Demande de confirmation avant la suppression
-            principalVue.afficherAlerte(Alert.AlertType.CONFIRMATION,
+            boolean confirme = principalVue.afficherAlerteConfirmation(
                     "Confirmation",
                     "Êtes-vous sûr de vouloir supprimer cet équipement ?",
                     "Cette action est irréversible.");
 
-            deleteMachine(refMach.getText());
-            principalVue.viderChamps();
+            // Si l'utilisateur confirme, on procède à la suppression
+            if (confirme) {
+                // Suppression de la machine
+                deleteMachine(refMach.getText());
+                principalVue.viderChamps();
 
-            // Redessine l'atelier après la suppression
-            dessinerAtelier(atelier.getLongX(), atelier.getLongY());
-            // Affiche une alerte de confirmation
-            principalVue.afficherAlerte(Alert.AlertType.INFORMATION,
-                    "Confirmation",
-                    "Équipement supprimé",
-                    "L'équipement a été supprimé avec succès.");
+                // Redessine l'atelier après la suppression
+                principalVue.dessinerAtelier();
+
+                // Affiche une notification de confirmation
+                principalVue.afficherNotif("Machine supprimée avec succès", Feather.TRASH_2,
+                        principalVue.getRootContainer());
+            }
         }
     }
 
     public void updateMachine(String ancienneRef, String nouvelleRef, String designation,
-            String coutHoraireStr, String dureeStr, EtatMachine etat) {
+            String coutHoraireStr, String dureeStr, EtatMachine etat, String posX, String posY) {
         // Met à jour les informations de la machine correspondante
         for (Machine m : machines) {
             if (m.getRefEquipement().equals(ancienneRef)) {
@@ -229,6 +236,8 @@ public class PrincipalControleur {
                 m.setdEquipement(designation);
                 m.setCoutHoraire(Float.parseFloat(coutHoraireStr));
                 m.setDureeUtil(Float.parseFloat(dureeStr));
+                m.setPosX(Float.parseFloat(posX));
+                m.setPosY(Float.parseFloat(posY));
                 m.setEtat(etat);
             }
         }

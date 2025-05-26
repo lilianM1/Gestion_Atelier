@@ -161,7 +161,6 @@ public class AtelierVue {
 
                 // Fermer d'abord la fenêtre de création
                 creerAtelierStage.close();
-
                 // Puis afficher la fenêtre principale
                 principalVue.mainWindow();
 

@@ -1,6 +1,7 @@
 package fr.insa.eymin.gestion_atelier.vues;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import fr.insa.eymin.gestion_atelier.controleurs.PrincipalControleur;
 import fr.insa.eymin.gestion_atelier.modeles.*;
@@ -460,6 +461,8 @@ public class PrincipalVue extends StackPane {
         coutHMach.setText(String.valueOf(m.getCoutHoraire())); // Coût horaire
         dureeMach.setText(String.valueOf(m.getDureeUtil())); // Durée d'utilisation
         etatMach.setValue(m.getEtat()); // État actuel (EN_MARCHE, EN_PANNE, etc.)
+        posX.setText(String.valueOf(m.getPosX())); // Position X
+        posY.setText(String.valueOf(m.getPosY())); // Position Y
         refMach.setText(m.getRefEquipement()); // Référence unique
     }
 
@@ -488,6 +491,14 @@ public class PrincipalVue extends StackPane {
         return dureeMach;
     }
 
+    public TextField getPosXField() {
+        return posX;
+    }
+
+    public TextField getPosYField() {
+        return posY;
+    }
+
     public ComboBox<EtatMachine> getEtatMach() {
         return etatMach;
     }
@@ -496,12 +507,18 @@ public class PrincipalVue extends StackPane {
         return rootContainer;
     }
 
+    public void setAtelier(Atelier atelier) {
+        this.atelier = atelier;
+    }
+
     // Définir l'accessibilité des champs de texte et combobox
     public void setFieldsEditable(boolean editable) {
         dMach.setEditable(editable);
         coutHMach.setEditable(editable);
         dureeMach.setEditable(editable);
         etatMach.setDisable(!editable);
+        posX.setEditable(editable);
+        posY.setEditable(editable);
         refMach.setEditable(editable);
     }
 
@@ -516,6 +533,8 @@ public class PrincipalVue extends StackPane {
         coutHMach.clear();
         dureeMach.clear();
         refMach.clear();
+        posX.clear();
+        posY.clear();
         etatMach.setValue(null);
     }
 
@@ -526,6 +545,19 @@ public class PrincipalVue extends StackPane {
         alert.setHeaderText(entete);
         alert.setContentText(contenu);
         alert.showAndWait();
+    }
+
+    public boolean afficherAlerteConfirmation(String titre, String entete, String contenu) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(titre);
+        alert.setHeaderText(entete);
+        alert.setContentText(contenu);
+
+        // Attendre la réponse de l'utilisateur
+        Optional<ButtonType> result = alert.showAndWait();
+
+        // Retourner true si l'utilisateur a cliqué sur OK, false sinon
+        return result.isPresent() && result.get() == ButtonType.OK;
     }
 
     public void afficherNotif(String message, Ikon icon, StackPane rootContainer) {
@@ -552,7 +584,7 @@ public class PrincipalVue extends StackPane {
         }
         in.playFromStart();
 
-        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(Duration.millis(2000));
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(Duration.millis(3000));
         delay.setOnFinished(event -> {
             Timeline out = Animations.slideOutUp(msg, Duration.millis(250));
             out.setOnFinished(f -> rootContainer.getChildren().remove(msg));
