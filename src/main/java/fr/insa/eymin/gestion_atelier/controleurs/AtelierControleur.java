@@ -2,9 +2,14 @@ package fr.insa.eymin.gestion_atelier.controleurs;
 
 import fr.insa.eymin.gestion_atelier.modeles.Atelier;
 import fr.insa.eymin.gestion_atelier.vues.AtelierVue;
+import fr.insa.eymin.gestion_atelier.vues.PrincipalVue;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
+
+import org.kordamp.ikonli.feather.Feather;
+
 import javafx.concurrent.Task;
 import javafx.stage.Stage;
 
@@ -16,14 +21,13 @@ public class AtelierControleur {
 
     private Atelier modele;
     private AtelierVue vue;
+    private PrincipalVue principalVue; // Référence à la vue principale, si nécessaire
 
     /**
      * Constructeur du contrôleur d'atelier
-     * 
-     * @param modele Le modèle Atelier à manipuler
-     * @param vue    La vue associée à l'atelier
      */
-    public AtelierControleur(Atelier modele, AtelierVue vue) {
+    public AtelierControleur(Atelier modele, AtelierVue vue, PrincipalVue principalVue) {
+        this.principalVue = principalVue; // Initialisation de la vue principale
         this.modele = modele;
         this.vue = vue;
     }
@@ -94,8 +98,23 @@ public class AtelierControleur {
     public void creerNouveauAtelier() {
         // Réinitialisation du modèle et de la vue
         modele = new Atelier();
-        vue = new AtelierVue();
+        vue = new AtelierVue(this, principalVue);
         // Affichage de la vue
         vue.afficherFenetreCreation();
+    }
+
+    public void creationAtelier(String nomAtelier, float longX, float longY) {
+
+        Atelier atelier = new Atelier(nomAtelier, longX, longY);
+        // Enregistrement de l'atelier
+
+        atelier.sauvegarderAtelier(nomAtelier, longX, longY);
+
+        principalVue.afficherNotif("Atelier créé avec succès", Feather.CHECK_SQUARE,
+                principalVue.getRootContainer());
+        // Ferme la fenêtre principale avant de créer un nouvel atelier
+        if (principalVue != null) {
+            principalVue.fermerFenetre();
+        }
     }
 }

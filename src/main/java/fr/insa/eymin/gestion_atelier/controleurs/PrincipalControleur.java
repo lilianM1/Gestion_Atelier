@@ -26,11 +26,13 @@ public class PrincipalControleur {
     private ArrayList<Produit> produits = new ArrayList<>();
     private ArrayList<Poste> postes = new ArrayList<>();
     private ArrayList<Operation> operations = new ArrayList<>();
+    private Atelier atelier;
 
     // =============================================================================
     // Constructeur
     public PrincipalControleur(PrincipalVue principalVue, ArrayList<Machine> machines,
-            ArrayList<Produit> produits, ArrayList<Poste> postes, ArrayList<Operation> operations) {
+            ArrayList<Produit> produits, ArrayList<Poste> postes, ArrayList<Operation> operations, Atelier atelier) {
+        this.atelier = atelier;
         this.principalVue = principalVue;
         this.machines = machines;
         this.produits = produits;
@@ -117,12 +119,12 @@ public class PrincipalControleur {
     public void calculerFiabilite() {
         Atelier modele = new Atelier();
         AtelierVue vue = new AtelierVue();
-        AtelierControleur controleur = new AtelierControleur(modele, vue);
+        AtelierControleur controleur = new AtelierControleur(modele, vue, principalVue);
         controleur.calculerEtAfficherFiabilite();
     }
 
-    public void dessinerAtelier() {
-        principalVue.afficherMachinesSurPlan(machines);
+    public void dessinerAtelier(float longX, float longY) {
+        principalVue.afficherMachinesSurPlan(machines, longX, longY);
     }
 
     public void saveAtelier() {
@@ -133,7 +135,7 @@ public class PrincipalControleur {
     public void creerNouveauAtelier() {
         Atelier modele = new Atelier();
         AtelierVue vue = new AtelierVue();
-        AtelierControleur controleur = new AtelierControleur(modele, vue);
+        AtelierControleur controleur = new AtelierControleur(modele, vue, principalVue);
         controleur.creerNouveauAtelier();
     }
 
@@ -181,7 +183,7 @@ public class PrincipalControleur {
 
                 updateMachine(tempRef.get(), refMach.getText(), dMach.getText(),
                         coutHMach.getText(), dureeMach.getText(), etatMach.getValue());
-                dessinerAtelier();
+                dessinerAtelier(atelier.getLongX(), atelier.getLongY());
             }
         }
     }
@@ -209,7 +211,7 @@ public class PrincipalControleur {
             principalVue.viderChamps();
 
             // Redessine l'atelier après la suppression
-            dessinerAtelier();
+            dessinerAtelier(atelier.getLongX(), atelier.getLongY());
             // Affiche une alerte de confirmation
             principalVue.afficherAlerte(Alert.AlertType.INFORMATION,
                     "Confirmation",

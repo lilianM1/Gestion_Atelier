@@ -34,13 +34,14 @@ public class PrincipalVue extends StackPane {
     // ========================== Attributs ================================
     private Stage primaryStage; // Fenêtre principale de l'application
     private Pane planAtelier; // Plan pour dessiner l'atelier
-    private TextField refMach, dMach, coutHMach, dureeMach; // Champs pour les info de la machine
+    private TextField refMach, dMach, coutHMach, dureeMach, posX, posY; // Champs pour les info de la machine
     private ComboBox<EtatMachine> etatMach; // Combo box pour l'état de la machine
 
     private ArrayList<Machine> machines = new ArrayList<>();
     private ArrayList<Produit> produits = new ArrayList<>();
     private ArrayList<Poste> postes = new ArrayList<>();
     private ArrayList<Operation> operations = new ArrayList<>();
+    private Atelier atelier; // Modèle de l'atelier
 
     private PrincipalControleur controleur;
 
@@ -49,7 +50,7 @@ public class PrincipalVue extends StackPane {
     // ========================== Constructeurs ============================
     public PrincipalVue() {
         this.planAtelier = new Pane();
-        this.controleur = new PrincipalControleur(this, machines, produits, postes, operations);
+        this.controleur = new PrincipalControleur(this, machines, produits, postes, operations, atelier);
         this.rootContainer = new StackPane();
     }
 
@@ -92,6 +93,20 @@ public class PrincipalVue extends StackPane {
             PrincipalControleur.selectChamp(dureeMach);
         });
 
+        // Champs pour afficher la position de la machine
+        posX = new TextField();
+        posX.setEditable(false);
+        posX.setOnMouseClicked(event -> {
+            // Lorsqu'on clique sur le champ de position X, on le sélectionne
+            PrincipalControleur.selectChamp(posX);
+        });
+        posY = new TextField();
+        posY.setEditable(false);
+        posY.setOnMouseClicked(event -> {
+            // Lorsqu'on clique sur le champ de position Y, on le sélectionne
+            PrincipalControleur.selectChamp(posY);
+        });
+
         // ComboBox pour l'état de la machine, initialement désactivée
         etatMach = new ComboBox<EtatMachine>();
         etatMach.getItems().addAll(EtatMachine.values());
@@ -109,7 +124,9 @@ public class PrincipalVue extends StackPane {
         Menu fichierMenu = new Menu("Fichier");
         MenuItem nvAtelier = new MenuItem("Nouvel Atelier");
         nvAtelier.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
-        // TODO: ajouter l'action pour créer un nouvel atelier
+        nvAtelier.setOnAction(e -> {
+            controleur.creerNouveauAtelier();
+        });
         MenuItem ouvrirAtelier = new MenuItem("Ouvrir Atelier", new FontIcon(Feather.FOLDER));
         ouvrirAtelier.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
         // TODO: ajouter l'action pour ouvrir un atelier
@@ -210,19 +227,6 @@ public class PrincipalVue extends StackPane {
                 afficherPostes,
                 afficherOperations);
 
-        // ------------------------- Menu "Dessiner" -----------------------------
-        // Option pour dessiner l'atelier dans le panneau central
-        // MenuItem dessinerAtelier = new MenuItem("Dessiner atelier");
-        // dessinerAtelier.setOnAction(e -> {
-        // controleur.dessinerAtelier();
-        // });
-
-        // -----------------------------------------------------------------------
-        // Ajout des sous-menus au menu "Gestion"
-        // gestionMenu.getItems().addAll(
-        // sousMenuNouveau,
-        // sousMenuAfficher,
-        // dessinerAtelier);
         gestionMenu.getItems().addAll(
                 sousMenuNouveau,
                 sousMenuAfficher);
@@ -291,10 +295,8 @@ public class PrincipalVue extends StackPane {
 
         creerEq.getItems().addAll(sousMenu, creerProduit, creerOperation);
 
-        Button btn = new Button("SHOW");
-
         // Organisation horizontale des boutons
-        HBox boutonsHb = new HBox(modifierButton, supprimerButton, creerEq, btn);
+        HBox boutonsHb = new HBox(modifierButton, supprimerButton, creerEq);
         boutonsHb.setSpacing(10);
 
         // Configuration du bas du panneau d'informations
@@ -315,6 +317,8 @@ public class PrincipalVue extends StackPane {
                 new HBox(new Label("Désignation : "), dMach),
                 new HBox(new Label("Coût horaire : "), coutHMach, new Label(" €")),
                 new HBox(new Label("Durée d'utilisation : "), dureeMach, new Label(" h")),
+                new HBox(new Label("Position X : "), posX),
+                new HBox(new Label("Position Y : "), posY),
                 new HBox(new Label("Etat : "), etatMach),
                 boutonsHb,
                 separator,
@@ -361,10 +365,6 @@ public class PrincipalVue extends StackPane {
         // superposer des notifications
         rootContainer.getChildren().add(fenetre); // Ajoutez votre BorderPane principal
 
-        btn.setOnAction(e -> {
-            afficherNotif("TEST", Material2AL.INFO, rootContainer);
-        });
-
         // Puis utilisez rootContainer comme racine de votre scène
         Scene scene = new Scene(rootContainer, 1280, 720);
 
@@ -378,8 +378,6 @@ public class PrincipalVue extends StackPane {
     }
 
     public void startWindow() {
-        // Crée la fenêtre principale
-        mainWindow();
 
         // Fenêtre bloquante de sélection : Nouvel atelier vierge / Ouvrir atelier
         Stage selectionStage = new Stage();
@@ -399,6 +397,7 @@ public class PrincipalVue extends StackPane {
         });
         Button ouvrirAtelierButton = new Button("Ouvrir Atelier");
         ouvrirAtelierButton.setOnAction(e -> {
+            // TODO : ajouter l'action pour ouvrir un atelier
             // controleur.ouvrirAtelier();
             selectionStage.close(); // Ferme la fenêtre de sélection
         });
@@ -414,11 +413,11 @@ public class PrincipalVue extends StackPane {
     }
 
     public void dessinerAtelier() {
-        controleur.dessinerAtelier();
+        controleur.dessinerAtelier(atelier.getLongX(), atelier.getLongY());
     }
 
     // Méthode appelée par le contrôleur pour dessiner les machines
-    public void afficherMachinesSurPlan(ArrayList<Machine> machines) {
+    public void afficherMachinesSurPlan(ArrayList<Machine> machines, float longX, float longY) {
         // Effacement du contenu précédent pour éviter les superpositions
         planAtelier.getChildren().clear();
         // Parcours de toutes les machines à placer sur le plan
@@ -432,9 +431,23 @@ public class PrincipalVue extends StackPane {
                 afficherDetailsMachine(m);
             });
 
+            // Calcul du mapping de la position de la machine par rapport aux dimensions
+            // réelles de l'atelier
+            // et à la taille en pixels du panneau d'affichage
+            double scaleX = planAtelier.getWidth() / longX;
+            double scaleY = planAtelier.getHeight() / longY;
+
+            // Application du mapping pour positionner correctement la machine sur le plan
+            double mappedX = m.getPosX() * scaleX;
+            double mappedY = m.getPosY() * scaleY;
+
+            // Mise à jour de la position du bouton avec les coordonnées mappées
+            machineButton.setLayoutX(mappedX);
+            machineButton.setLayoutY(mappedY);
+
             // Positionnement du bouton sur le plan selon les coordonnées de la machine
-            machineButton.setLayoutX(m.getPosX());
-            machineButton.setLayoutY(m.getPosY());
+            // machineButton.setLayoutX(m.getPosX());
+            // machineButton.setLayoutY(m.getPosY());
 
             // Ajout du bouton au panneau d'affichage
             planAtelier.getChildren().add(machineButton);
@@ -546,6 +559,17 @@ public class PrincipalVue extends StackPane {
             out.playFromStart();
         });
         delay.play();
+
+    }
+
+    public void fermerFenetre() {
+
+        // Réinitialise le StackPane root en supprimant tous ses enfants
+        if (primaryStage != null) {
+            primaryStage.close(); // Ferme la fenêtre principale
+            rootContainer = new StackPane();
+
+        }
 
     }
 }

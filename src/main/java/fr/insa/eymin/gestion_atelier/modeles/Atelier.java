@@ -3,11 +3,14 @@ package fr.insa.eymin.gestion_atelier.modeles;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import fr.insa.eymin.gestion_atelier.vues.PrincipalVue;
 
 /**
  * Classe représentant un atelier de production industriel.
@@ -23,10 +26,13 @@ public class Atelier {
      * Chaque poste peut contenir plusieurs machines et est impliqué dans
      * différentes opérations de production.
      */
-    private ArrayList<Equipement> equipements;
 
+    private String nomAtelier; // Référence unique de l'atelier
     private float longX; // Longueur de l'atelier en X
     private float longY; // Longueur de l'atelier en Y
+    private ArrayList<Equipement> equipements;
+
+    private PrincipalVue principalVue; // Référence à la vue principale pour les alertes
 
     // ========================== Constructeurs ============================
 
@@ -36,6 +42,21 @@ public class Atelier {
      */
     public Atelier() {
         this.equipements = new ArrayList<Equipement>();
+    }
+
+    /**
+     * Constructeur avec paramètres.
+     * Permet de créer un atelier avec un nom, une longueur en X et Y, et une
+     * liste de postes de travail.
+     * 
+     * @param nomAtelier Nom de l'atelier
+     * @param longX      Longueur de l'atelier en X
+     * @param longY      Longueur de l'atelier en Y
+     */
+    public Atelier(String nomAtelier, float longX, float longY) {
+        this.nomAtelier = nomAtelier;
+        this.longX = longX;
+        this.longY = longY;
     }
 
     /**
@@ -358,5 +379,45 @@ public class Atelier {
      */
     public void setdEquipement(ArrayList<Equipement> equipements) {
         this.equipements = equipements;
+    }
+
+    public void sauvegarderAtelier(String nomAtelier, float longX, float longY) {
+        try (FileWriter writer = new FileWriter("src/main/ressources/data/atelier_saves/" + nomAtelier + ".txt")) {
+            writer.write("A;" + nomAtelier + ";" + longX + ";" + longY + "\n");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            principalVue.afficherAlerte(
+                    javafx.scene.control.Alert.AlertType.ERROR,
+                    "Erreur",
+                    "Erreur lors de la sauvegarde de l'atelier",
+                    "Une erreur est survenue lors de la sauvegarde de l'atelier : " + e.getMessage());
+            return;
+        }
+    }
+
+    // =========================== Getters/Setters ==========================
+    public String getNomAtelier() {
+        return nomAtelier;
+    }
+
+    public void setNomAtelier(String nomAtelier) {
+        this.nomAtelier = nomAtelier;
+    }
+
+    public float getLongX() {
+        return longX;
+    }
+
+    public void setLongX(float longX) {
+        this.longX = longX;
+    }
+
+    public float getLongY() {
+        return longY;
+    }
+
+    public void setLongY(float longY) {
+        this.longY = longY;
     }
 }
