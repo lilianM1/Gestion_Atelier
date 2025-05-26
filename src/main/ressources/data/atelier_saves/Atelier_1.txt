@@ -1,1 +1,2 @@
-A;Atelier_1;10.0;10.0
+M: Mach_1;visseuse;2.0;3.0;0.0;0.0;ARRET
+M: Mach_2;perceuse;4.0;1.0;0.0;0.0;DISPONIBLE

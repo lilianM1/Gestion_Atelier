@@ -57,7 +57,7 @@ public class ProduitControleur {
             Produit produit = new Produit(codeProduit, dProduit);
             produits.add(produit);
             principalVue.afficherNotif("Produit créé avec succès", Feather.CHECK_SQUARE,
-                    principalVue.getRootContainer());
+                    principalVue.getRootContainer(), "info");
             return true;
 
         } catch (Exception ex) {

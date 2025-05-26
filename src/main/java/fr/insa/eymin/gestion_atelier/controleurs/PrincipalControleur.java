@@ -1,5 +1,10 @@
 package fr.insa.eymin.gestion_atelier.controleurs;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -29,13 +34,11 @@ public class PrincipalControleur {
     private ArrayList<Produit> produits = new ArrayList<>();
     private ArrayList<Poste> postes = new ArrayList<>();
     private ArrayList<Operation> operations = new ArrayList<>();
-    private Atelier atelier;
 
     // =============================================================================
     // Constructeur
     public PrincipalControleur(PrincipalVue principalVue, ArrayList<Machine> machines,
-            ArrayList<Produit> produits, ArrayList<Poste> postes, ArrayList<Operation> operations, Atelier atelier) {
-        this.atelier = atelier;
+            ArrayList<Produit> produits, ArrayList<Poste> postes, ArrayList<Operation> operations) {
         this.principalVue = principalVue;
         this.machines = machines;
         this.produits = produits;
@@ -160,6 +163,10 @@ public class PrincipalControleur {
     public void modifierMachine(Button modifierButton, AtomicReference<String> tempRef) {
         TextField dMach = principalVue.getDMach();
         TextField refMach = principalVue.getRefMach();
+        TextField coutHMach = principalVue.getCoutHMach();
+        TextField dureeMach = principalVue.getDureeMach();
+        TextField posXField = principalVue.getPosXField();
+        TextField posYField = principalVue.getPosYField();
 
         if (dMach.getText().isEmpty()) {
             // Affiche une alerte si aucun équipement n'est sélectionné
@@ -174,16 +181,46 @@ public class PrincipalControleur {
                 principalVue.setModifierButtonText(modifierButton, "Valider");
                 tempRef.set(refMach.getText()); // Mémorise la référence originale
             } else if (modifierButton.getText().equals("Valider")) {
+                // Vérification que la référence n'existe pas déjà
+                if (machines.stream().anyMatch(m -> m.getRefEquipement().equals(refMach.getText())
+                        && !m.getRefEquipement().equals(tempRef.get()))) {
+                    principalVue.afficherAlerte(Alert.AlertType.ERROR,
+                            "Erreur",
+                            "Référence déjà utilisée",
+                            "La référence de la machine existe déjà. Veuillez en choisir une autre.");
+                    return;
+                }
+                // Vérification que les champs ne sont pas vides
+                if (refMach.getText().isEmpty() || dMach.getText().isEmpty() ||
+                        coutHMach.getText().isEmpty() || dureeMach.getText().isEmpty() ||
+                        posXField.getText().isEmpty() || posYField.getText().isEmpty()) {
+                    principalVue.afficherAlerte(Alert.AlertType.ERROR,
+                            "Erreur",
+                            "Champs vides",
+                            "Veuillez remplir tous les champs obligatoires.");
+                    return;
+                }
+                // Vérification que la durée et le coût horaire et la position sont des nombres
+                // valides
+                try {
+                    Float.parseFloat(coutHMach.getText());
+                    Float.parseFloat(dureeMach.getText());
+                    Float.parseFloat(posXField.getText());
+                    Float.parseFloat(posYField.getText());
+                } catch (NumberFormatException e) {
+                    principalVue.afficherAlerte(Alert.AlertType.ERROR,
+                            "Erreur",
+                            "Format incorrect",
+                            "Veuillez entrer des valeurs numériques valides pour le coût horaire, la durée et la position.");
+                    return;
+                }
+
                 // Passe en mode lecture: désactive les champs de saisie et enregistre les
                 // modifications
                 principalVue.setFieldsEditable(false);
                 principalVue.setModifierButtonText(modifierButton, "Modifier");
 
                 // Récupération des valeurs des champs
-                TextField coutHMach = principalVue.getCoutHMach();
-                TextField dureeMach = principalVue.getDureeMach();
-                TextField posXField = principalVue.getPosXField();
-                TextField posYField = principalVue.getPosYField();
                 ComboBox<EtatMachine> etatMach = principalVue.getEtatMach();
 
                 updateMachine(tempRef.get(), refMach.getText(), dMach.getText(),
@@ -222,7 +259,7 @@ public class PrincipalControleur {
 
                 // Affiche une notification de confirmation
                 principalVue.afficherNotif("Machine supprimée avec succès", Feather.TRASH_2,
-                        principalVue.getRootContainer());
+                        principalVue.getRootContainer(), "info");
             }
         }
     }
@@ -245,5 +282,55 @@ public class PrincipalControleur {
 
     public void deleteMachine(String refMach) {
         machines.removeIf(m -> m.getRefEquipement().equals(refMach));
+    }
+
+    public void sauvegarderAtelier() {
+        File fichier = new File(
+                "C:\\Users\\lilou\\Documents\\INSA\\PIF\\Informatique\\S2\\PROJET\\Gestion_Atelier\\src\\main\\ressources\\data\\atelier_saves\\"
+                        + principalVue.getAtelier().getNomAtelier() + ".txt");
+        File sauvegarde = new File(
+                "C:\\Users\\lilou\\Documents\\INSA\\PIF\\Informatique\\S2\\PROJET\\Gestion_Atelier\\src\\main\\ressources\\data\\atelier_saves\\"
+                        + principalVue.getAtelier().getNomAtelier() + ".bak");
+        try {
+            // Créer une sauvegarde si le fichier existe
+            if (fichier.exists()) {
+                Files.copy(fichier.toPath(), sauvegarde.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            // Écrire le nouveau fichier
+            try (FileWriter writer = new FileWriter(fichier)) {
+                // Écrire l'en-tête
+                writer.write("A;" + principalVue.getAtelier().getNomAtelier() + ";" +
+                        principalVue.getAtelier().getLongX() + ";" +
+                        principalVue.getAtelier().getLongY() + "\n");
+                // Écrire les machines
+                for (Machine machine : machines) {
+                    writer.write("M;" + machine.getRefEquipement() + ";" +
+                            machine.getdEquipement() + ";" + machine.getPosX() + ";" +
+                            machine.getPosY() + ";" + machine.getCoutHoraire() + ";" +
+                            machine.getDureeUtil() + ";" + machine.getEtat() + "\n");
+                }
+                // TODO : ecrire la suite
+
+            }
+            principalVue.afficherNotif("Atelier sauvegardé avec succès", Feather.CHECK_SQUARE,
+                    principalVue.getRootContainer(), "info");
+
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la sauvegarde : " + e.getMessage());
+            principalVue.afficherNotif("Erreur lors de la sauvegarde de l'atelier",
+                    Feather.ALERT_OCTAGON, principalVue.getRootContainer(), "error");
+            // Restaurer la sauvegarde si possible
+            if (sauvegarde.exists()) {
+                try {
+                    Files.copy(sauvegarde.toPath(), fichier.toPath(),
+                            StandardCopyOption.REPLACE_EXISTING);
+                    System.out.println("Fichier restauré depuis la sauvegarde");
+                } catch (IOException ex) {
+                    System.err.println("Impossible de restaurer : " + ex.getMessage());
+                }
+            }
+        }
     }
 }

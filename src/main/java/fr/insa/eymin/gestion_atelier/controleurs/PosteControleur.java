@@ -29,7 +29,8 @@ public class PosteControleur {
     public void ajouterPoste(String reference, String designation, ArrayList<Machine> machinesSelectionnees) {
         Poste nouveauPoste = new Poste(reference, designation, machinesSelectionnees);
         postes.add(nouveauPoste);
-        principalVue.afficherNotif("Poste créé avec succès", Feather.CHECK_SQUARE, principalVue.getRootContainer());
+        principalVue.afficherNotif("Poste créé avec succès", Feather.CHECK_SQUARE, principalVue.getRootContainer(), 
+                "info");
     }
 
     public boolean posteExistant(String reference) {

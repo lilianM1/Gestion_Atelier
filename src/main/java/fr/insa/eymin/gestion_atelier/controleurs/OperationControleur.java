@@ -74,7 +74,7 @@ public class OperationControleur {
                 Operation operation = new Operation(refOperation, dOperation, refEquipement);
                 operations.add(operation);
                 principalVue.afficherNotif("Opération créée avec succès", Feather.CHECK_SQUARE,
-                        principalVue.getRootContainer());
+                        principalVue.getRootContainer(), "info");
 
                 if (duree < 0) {
                     vue.afficherErreur("Erreur", "Durée invalide", "La durée ne peut pas être négative.");

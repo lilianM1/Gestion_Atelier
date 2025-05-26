@@ -37,12 +37,14 @@ public class PrincipalVue extends StackPane {
     private Pane planAtelier; // Plan pour dessiner l'atelier
     private TextField refMach, dMach, coutHMach, dureeMach, posX, posY; // Champs pour les info de la machine
     private ComboBox<EtatMachine> etatMach; // Combo box pour l'état de la machine
+    private Button modifierButton; // Bouton pour modifier la machine
 
     private ArrayList<Machine> machines = new ArrayList<>();
     private ArrayList<Produit> produits = new ArrayList<>();
     private ArrayList<Poste> postes = new ArrayList<>();
     private ArrayList<Operation> operations = new ArrayList<>();
     private Atelier atelier; // Modèle de l'atelier
+    AtomicReference<String> tempRef = new AtomicReference<>();
 
     private PrincipalControleur controleur;
 
@@ -51,7 +53,7 @@ public class PrincipalVue extends StackPane {
     // ========================== Constructeurs ============================
     public PrincipalVue() {
         this.planAtelier = new Pane();
-        this.controleur = new PrincipalControleur(this, machines, produits, postes, operations, atelier);
+        this.controleur = new PrincipalControleur(this, machines, produits, postes, operations);
         this.rootContainer = new StackPane();
     }
 
@@ -133,9 +135,8 @@ public class PrincipalVue extends StackPane {
         // TODO: ajouter l'action pour ouvrir un atelier
         MenuItem saveAtelier = new MenuItem("Sauvegarder Atelier", new FontIcon(Feather.SAVE));
         saveAtelier.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
-        // TODO: ajouter l'action pour sauvegarder l'atelier
         saveAtelier.setOnAction(e -> {
-            // controleur.sauvegarderAtelier();
+            controleur.sauvegarderAtelier();
         });
         MenuItem saveAsAtelier = new MenuItem("Sauvegarder sous");
         saveAsAtelier.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN,
@@ -270,7 +271,7 @@ public class PrincipalVue extends StackPane {
 
         // Configuration de la partie droite (panneau d'informations et de contrôle)
         // Boutons pour modifier et supprimer des équipements
-        Button modifierButton = new Button("Modifier");
+        modifierButton = new Button("Modifier");
         Button supprimerButton = new Button("Supprimer");
 
         // Menu déroulant pour créer de nouveaux équipements
@@ -327,7 +328,7 @@ public class PrincipalVue extends StackPane {
 
         // Variable temporaire pour stocker la référence initiale lors de la
         // modification
-        AtomicReference<String> tempRef = new AtomicReference<>();
+        tempRef = new AtomicReference<>();
 
         // Gestion de l'événement du bouton "Modifier"/"Valider"
         modifierButton.setOnAction(e -> {
@@ -352,10 +353,28 @@ public class PrincipalVue extends StackPane {
         )));
         VBox.setVgrow(infoDroite, Priority.SOMETIMES);
 
-        SplitPane splitPane = new SplitPane();
+        // Création d'un context menu pour le plan de l'atelier
+        ContextMenu contextMenuPlan = new ContextMenu();
+        MenuItem ajouterMachine = new MenuItem("Ajouter Machine");
+        ajouterMachine.setGraphic(new FontIcon(Feather.PLUS));
+        ajouterMachine.setOnAction(e -> {
+            controleur.creerMachine();
+        });
+        MenuItem redessinerPlan = new MenuItem("Redessiner Plan");
+        redessinerPlan.setGraphic(new FontIcon(Feather.REFRESH_CW));
+        redessinerPlan.setOnAction(e -> {
+            controleur.dessinerAtelier(atelier.getLongX(), atelier.getLongY());
+        });
+
+        contextMenuPlan.getItems().addAll(ajouterMachine, new SeparatorMenuItem(), redessinerPlan);
+        // Ajout du menu contextuel au plan de l'atelier
+        planAtelier.setOnContextMenuRequested(e -> {
+            contextMenuPlan.show(planAtelier, e.getScreenX(), e.getScreenY());
+        });
+
+        SplitPane splitPane = new SplitPane(planAtelier, infoDroite); // Création du SplitPane
         splitPane.setOrientation(Orientation.HORIZONTAL);
         splitPane.setDividerPositions(0.8); // Position du séparateur
-        splitPane.getItems().addAll(planAtelier, infoDroite); // Ajout du plan et du panneau d'infos
 
         // Assemblage final de l'interface
         // fenetre.setRight(infoDroite); // Panneau d'informations à droite
@@ -427,10 +446,29 @@ public class PrincipalVue extends StackPane {
             Button machineButton = new Button(m.getRefEquipement());
             machineButton.setMnemonicParsing(false); // Désactive l'interprétation des caractères spéciaux (ex: '_')
 
+            // Création du menu contextuel pour le bouton de la machine
+            ContextMenu menuBtnMach = new ContextMenu();
+            MenuItem modifierItem = new MenuItem("Modifier");
+            modifierItem.setGraphic(new FontIcon(Feather.EDIT)); // Icône pour le menu
+            modifierItem.setOnAction(e -> {
+                afficherDetailsMachine(m);
+                controleur.modifierMachine(modifierButton, tempRef);
+            });
+            MenuItem supprimerItem = new MenuItem("Supprimer");
+            supprimerItem.setGraphic(new FontIcon(Feather.TRASH_2)); // Icône pour le menu
+            supprimerItem.setOnAction(e -> {
+                afficherDetailsMachine(m);
+                controleur.supprimerMachine();
+            });
+
+            menuBtnMach.getItems().addAll(modifierItem, new SeparatorMenuItem(), supprimerItem);
+
             // Configuration de l'action lors du clic: afficher les détails de la machine
             machineButton.setOnAction(e -> {
                 afficherDetailsMachine(m);
             });
+
+            machineButton.setContextMenu(menuBtnMach); // Associer le menu contextuel au bouton
 
             // Calcul du mapping de la position de la machine par rapport aux dimensions
             // réelles de l'atelier
@@ -511,6 +549,10 @@ public class PrincipalVue extends StackPane {
         this.atelier = atelier;
     }
 
+    public Atelier getAtelier() {
+        return atelier;
+    }
+
     // Définir l'accessibilité des champs de texte et combobox
     public void setFieldsEditable(boolean editable) {
         dMach.setEditable(editable);
@@ -560,11 +602,23 @@ public class PrincipalVue extends StackPane {
         return result.isPresent() && result.get() == ButtonType.OK;
     }
 
-    public void afficherNotif(String message, Ikon icon, StackPane rootContainer) {
+    public void afficherNotif(String message, Ikon icon, StackPane rootContainer, String typeNotif) {
         final Notification msg = new Notification(
                 message,
                 icon != null ? new FontIcon(icon) : null);
-        msg.getStyleClass().addAll(Styles.ACCENT, Styles.ELEVATED_1);
+        msg.getStyleClass().add(Styles.ELEVATED_1);
+        if (typeNotif.equals("info")) {
+            msg.getStyleClass().addAll(Styles.ACCENT);
+        } else if (typeNotif.equals("error")) {
+            msg.getStyleClass().addAll(Styles.DANGER);
+        } else if (typeNotif.equals("success")) {
+            msg.getStyleClass().addAll(Styles.SUCCESS);
+        } else if (typeNotif.equals("warning")) {
+            msg.getStyleClass().addAll(Styles.WARNING);
+        } else {
+            msg.getStyleClass().addAll(Styles.ACCENT);
+        }
+
         msg.setMaxWidth(300);
 
         msg.setPrefHeight(Region.USE_COMPUTED_SIZE);
@@ -573,7 +627,7 @@ public class PrincipalVue extends StackPane {
         StackPane.setAlignment(msg, Pos.TOP_RIGHT);
         StackPane.setMargin(msg, new javafx.geometry.Insets(10, 10, 0, 0));
         msg.setOnClose(ev -> {
-            Timeline out = Animations.slideOutUp(msg, Duration.millis(250));
+            Timeline out = Animations.slideOutUp(msg, Duration.millis(500));
             out.setOnFinished(f -> rootContainer.getChildren().remove(msg));
             out.playFromStart();
         });

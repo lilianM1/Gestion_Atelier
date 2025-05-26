@@ -32,7 +32,8 @@ public class MachineControleur {
         // Mise à jour de l'affichage de l'atelier
 
         principalVue.dessinerAtelier();
-        principalVue.afficherNotif("Machine créée avec succès", Feather.CHECK_SQUARE, principalVue.getRootContainer());
+        principalVue.afficherNotif("Machine créée avec succès", Feather.CHECK_SQUARE, principalVue.getRootContainer(),
+                "info");
 
     }
 

@@ -3,7 +3,6 @@ package fr.insa.eymin.gestion_atelier.vues;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import org.kordamp.ikonli.feather.Feather;
 import atlantafx.base.theme.Styles;
 import fr.insa.eymin.gestion_atelier.controleurs.AtelierControleur;
 import javafx.application.Platform;
@@ -163,10 +162,6 @@ public class AtelierVue {
                 creerAtelierStage.close();
                 // Puis afficher la fenêtre principale
                 principalVue.mainWindow();
-
-                // Afficher la notification de succès
-                principalVue.afficherNotif("Atelier créé avec succès", Feather.CHECK_SQUARE,
-                        principalVue.getRootContainer());
 
             } catch (Exception e) {
                 e.printStackTrace();
