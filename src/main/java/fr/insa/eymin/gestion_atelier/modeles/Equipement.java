@@ -1,5 +1,6 @@
 package fr.insa.eymin.gestion_atelier.modeles;
 
+
 public abstract class Equipement {
     // ========================== Attributs ================================
 

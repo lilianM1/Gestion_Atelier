@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import fr.insa.eymin.gestion_atelier.vues.PrincipalVue;
 
 /**
@@ -40,8 +39,12 @@ public class Atelier {
      * Constructeur par défaut.
      * Initialise un atelier vide sans postes de travail.
      */
-    public Atelier() {
-        this.equipements = new ArrayList<Equipement>();
+    public Atelier(PrincipalVue principalVue) {
+        this.principalVue = principalVue; // Référence à la vue principale pour les alertes
+        this.equipements = new ArrayList<>();
+        this.nomAtelier = "";
+        this.longX = 0;
+        this.longY = 0;
     }
 
     /**
@@ -49,22 +52,18 @@ public class Atelier {
      * Permet de créer un atelier avec un nom, une longueur en X et Y, et une
      * liste de postes de travail.
      * 
-     * @param nomAtelier Nom de l'atelier
-     * @param longX      Longueur de l'atelier en X
-     * @param longY      Longueur de l'atelier en Y
+     * @param nomAtelier  Nom de l'atelier
+     * @param longX       Longueur de l'atelier en X
+     * @param longY       Longueur de l'atelier en Y
+     * @param equipements Liste des équipements (postes et machines) dans l'atelier
      */
-    public Atelier(String nomAtelier, float longX, float longY) {
+    public Atelier(String nomAtelier, float longX, float longY, ArrayList<Equipement> equipements,
+            PrincipalVue principalVue) {
+        this.principalVue = principalVue; // Référence à la vue principale pour les alertes
+        this.equipements = equipements;
         this.nomAtelier = nomAtelier;
         this.longX = longX;
         this.longY = longY;
-    }
-
-    /**
-     * Constructeur avec liste de postes existante.
-     * Permet d'initialiser l'atelier avec une configuration prédéfinie de postes.
-     */
-    public Atelier(ArrayList<Equipement> equipements) {
-        this.equipements = equipements;
     }
 
     // ========================== Méthodes =================================
@@ -102,7 +101,8 @@ public class Atelier {
         int tempsTotal = (20 - 6) * 60;
 
         // ----- Lecture et analyse du fichier de logs de maintenance -----
-        File maintenanceLog = new File("src\\main\\ressources\\data\\SuiviMaintenance.txt");
+        File maintenanceLog = new File(
+                "src\\main\\ressources\\data\\Maintenance-" + principalVue.getAtelier().getNomAtelier() + ".txt");
         Scanner scanner = new Scanner(maintenanceLog);
 
         // Première passe: lecture et préparation des données
@@ -360,28 +360,7 @@ public class Atelier {
         }
     }
 
-    // ========================== Getters/Setters ==========================
-
-    /**
-     * Récupère la liste des postes de travail présents dans l'atelier.
-     * 
-     * @return Liste des postes de l'atelier
-     */
-    public ArrayList<Equipement> getEquipement() {
-        return equipements;
-    }
-
-    /**
-     * Définit une nouvelle liste de postes de travail pour l'atelier.
-     * Remplace complètement la liste existante.
-     * 
-     * @param postes Nouvelle liste de postes à affecter à l'atelier
-     */
-    public void setdEquipement(ArrayList<Equipement> equipements) {
-        this.equipements = equipements;
-    }
-
-    public void sauvegarderAtelier(String nomAtelier, float longX, float longY) {
+    public void firstSaveAtelier(String nomAtelier, float longX, float longY) {
         try (FileWriter writer = new FileWriter("src/main/ressources/data/atelier_saves/" + nomAtelier + ".txt")) {
             writer.write("A;" + nomAtelier + ";" + longX + ";" + longY + "\n");
 
@@ -419,5 +398,31 @@ public class Atelier {
 
     public void setLongY(float longY) {
         this.longY = longY;
+    }
+
+    public void setEquipements(ArrayList<Equipement> equipements) {
+        this.equipements = equipements;
+    }
+
+    public ArrayList<Equipement> getEquipements() {
+        return equipements;
+    }
+
+    public ArrayList<Machine> getMachines() {
+        return equipements.stream()
+                .filter(e -> e instanceof Machine)
+                .map(e -> (Machine) e)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+    }
+
+    public ArrayList<Poste> getPostes() {
+        return equipements.stream()
+                .filter(e -> e instanceof Poste)
+                .map(e -> (Poste) e)
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+    }
+
+    public void ajouterEquipement(Equipement equipement) {
+        equipements.add(equipement);
     }
 }

@@ -17,6 +17,13 @@ public class Operation {
         this.refEquipement = null;
     }
 
+    public Operation(String refOperation, String dOperation, float dureeOp) {
+        this.refOperation = refOperation;
+        this.dOperation = dOperation;
+        this.dureeOp = dureeOp;
+        this.refEquipement = null;
+    }
+
     public Operation(String refOperation, String dOperation, Equipement refEquipement) {
         this.refOperation = refOperation;
         this.dOperation = dOperation;
@@ -38,6 +45,26 @@ public class Operation {
                         + ", refEquipement=" + refEquipement.getRefEquipement() + "]");
     }
 
+    public String toStringForSave() {
+
+        return "OP;" + refOperation + ";" + dOperation + ";" + dureeOp + ";" + refEquipement.getRefEquipement();
+    }
+
+    public void calculerDureeOperation() {
+        if (this.getRefEquipement() instanceof Machine) {
+            this.setDureeOp(((Machine) this.getRefEquipement()).getDureeUtil());
+            System.out.println("Duree de l'opération : " + this.getDureeOp());
+        } else if (this.getRefEquipement() instanceof Poste) {
+            float duree = 0;
+            for (Machine m : ((Poste) this.getRefEquipement()).getMachines()) {
+                System.out.println("Machine : " + m.getRefEquipement() + ", Duree : " + m.getDureeUtil());
+                duree += m.getDureeUtil();
+            }
+            this.setDureeOp(duree);
+            System.out.println("Duree de l'opération : " + this.getDureeOp());
+        }
+    }
+
     // ========================== Getters/Setters ==========================
 
     public String getdOperation() {
@@ -56,7 +83,7 @@ public class Operation {
         this.dureeOp = dureeOp;
     }
 
-    public Equipement getrefEquipement() {
+    public Equipement getRefEquipement() {
         return refEquipement;
     }
 

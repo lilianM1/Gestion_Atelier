@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class Operateur {
     // ========================== Attributs ================================
 
+    
     private String codeOp;
     private String nom;
     private String prenom;

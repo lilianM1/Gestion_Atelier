@@ -130,12 +130,4 @@ public class PosteVue {
         creerPosteStage.show();
     }
 
-    // Méthode statique temporaire pour la compatibilité avec le code existant
-    // public static void fenetreCreationPoste(ArrayList<Machine> machines,
-    // ArrayList<Poste> postes) {
-    // PosteControleur controleur = new PosteControleur(postes, machines,
-    // principalVue);
-    // PosteVue vue = new PosteVue(controleur);
-    // vue.afficherFenetreCreation();
-    // }
 }

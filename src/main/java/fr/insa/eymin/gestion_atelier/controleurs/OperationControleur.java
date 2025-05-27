@@ -29,9 +29,10 @@ public class OperationControleur {
      * 
      * @param operations la liste des opérations
      */
-    public OperationControleur(ArrayList<Operation> operations) {
+    public OperationControleur(ArrayList<Operation> operations, PrincipalVue principalVue) {
         this.operations = operations;
         this.vue = new OperationVue(this);
+        this.principalVue = principalVue;
     }
 
     /**
@@ -40,6 +41,7 @@ public class OperationControleur {
     public void afficherFenetreCreation() {
         vue.afficherFenetreCreation();
     }
+
 
     /**
      * Crée une nouvelle opération avec les données saisies

@@ -3,7 +3,7 @@ package fr.insa.eymin.gestion_atelier.modeles;
 public class Produit {
     // ========================== Attributs ================================
 
-    private String codeProduit;
+    private String codeProduit; // Code du produit
     private String dProduit; // Désignation du produit
 
     // ========================== Constructeurs ============================
@@ -24,6 +24,10 @@ public class Produit {
     // Affiche les informations du produit
     public void afficherProduit() {
         System.out.println("codeProduit = " + codeProduit + ", dProduit = " + dProduit + "\n");
+    }
+
+    public String toStringForSave() {
+        return "PR;" + codeProduit + ";" + dProduit;
     }
 
     // ---------------------------------------------------------------------

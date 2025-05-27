@@ -1,11 +1,13 @@
 package fr.insa.eymin.gestion_atelier.controleurs;
 
 import fr.insa.eymin.gestion_atelier.modeles.Atelier;
+import fr.insa.eymin.gestion_atelier.modeles.Equipement;
 import fr.insa.eymin.gestion_atelier.vues.AtelierVue;
 import fr.insa.eymin.gestion_atelier.vues.PrincipalVue;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.kordamp.ikonli.feather.Feather;
@@ -46,7 +48,8 @@ public class AtelierControleur {
             protected Void call() throws Exception {
                 try {
                     // Chemin du fichier de sortie
-                    String excelFilePath = "src\\main\\ressources\\data\\FiabiliteMachines.csv";
+                    String excelFilePath = "src\\main\\ressources\\data\\FiabiliteMachines-"
+                            + principalVue.getAtelier().getNomAtelier() + ".csv";
 
                     // Appel des méthodes du modèle pour effectuer les calculs
                     Map<String, Object> resultats = modele.calculerFiabilite();
@@ -61,8 +64,8 @@ public class AtelierControleur {
                     vue.afficherErreur(
                             "Erreur",
                             "Fichier non trouvé",
-                            "Le fichier SuiviMaintenance.txt n'a pas été trouvé. \nVeuillez le placer dans le dossier src/main/ressources/data/.");
-                    vue.fermerFenetre(loadingStage);
+                            "Le fichier Maintenance-" + principalVue.getAtelier().getNomAtelier()
+                                    + " n'a pas été trouvé. \nVeuillez le placer dans le dossier src/main/ressources/data/.");
                 } catch (IOException e) {
                     // Gestion des autres erreurs d'entrée/sortie
                     e.printStackTrace();
@@ -97,7 +100,7 @@ public class AtelierControleur {
      */
     public void creerNouveauAtelier() {
         // Réinitialisation du modèle et de la vue
-        modele = new Atelier();
+        modele = new Atelier(principalVue);
         vue = new AtelierVue(this, principalVue);
         // Affichage de la vue
         vue.afficherFenetreCreation();
@@ -105,10 +108,10 @@ public class AtelierControleur {
 
     public void creationAtelier(String nomAtelier, float longX, float longY) {
 
-        Atelier atelier = new Atelier(nomAtelier, longX, longY);
-        // Enregistrement de l'atelier
-
-        atelier.sauvegarderAtelier(nomAtelier, longX, longY);
+        Atelier atelier = new Atelier(nomAtelier, longX, longY, new ArrayList<Equipement>(), principalVue); // Enregistrement
+                                                                                                            // de
+        // l'atelier
+        atelier.firstSaveAtelier(nomAtelier, longX, longY);
 
         principalVue.afficherNotif("Atelier créé avec succès", Feather.CHECK_SQUARE,
                 principalVue.getRootContainer(), "info");

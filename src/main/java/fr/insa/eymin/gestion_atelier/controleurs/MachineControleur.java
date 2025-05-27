@@ -30,7 +30,7 @@ public class MachineControleur {
         machines.add(machine);
 
         // Mise à jour de l'affichage de l'atelier
-
+        principalVue.getAtelier().ajouterEquipement(machine);
         principalVue.dessinerAtelier();
         principalVue.afficherNotif("Machine créée avec succès", Feather.CHECK_SQUARE, principalVue.getRootContainer(),
                 "info");

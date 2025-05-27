@@ -14,6 +14,11 @@ public class Poste extends Equipement {
         this.machines = new ArrayList<Machine>();
     }
 
+    public Poste(String refPoste, String dPoste) {
+        super(refPoste, dPoste);
+        this.machines = new ArrayList<Machine>();
+    }
+
     public Poste(String refPoste, String dPoste, ArrayList<Machine> machines) {
         super(refPoste, dPoste);
         this.machines = machines;
@@ -30,6 +35,16 @@ public class Poste extends Equipement {
         }
         System.out.println("refPoste = " + super.refEquipement + ", dPoste = " + super.dEquipement + ", machines = "
                 + listeM + "\n");
+    }
+
+    public String toStringForSave() {
+        String ligne = "P;" + super.refEquipement + ";" + super.dEquipement + ";";
+        ArrayList<String> listeM = new ArrayList<String>();
+        for (Machine m : this.machines) {
+            listeM.add(m.getRefEquipement());
+        }
+        ligne += listeM;
+        return ligne;
     }
 
     // ---------------------------------------------------------------------
@@ -59,4 +74,7 @@ public class Poste extends Equipement {
         this.machines = machines;
     }
 
+    public void ajouterMachine(Machine machine) {
+        this.machines.add(machine);
+    }
 }

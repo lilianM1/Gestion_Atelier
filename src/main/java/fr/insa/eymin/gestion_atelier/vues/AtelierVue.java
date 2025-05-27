@@ -162,6 +162,7 @@ public class AtelierVue {
                 creerAtelierStage.close();
                 // Puis afficher la fenêtre principale
                 principalVue.mainWindow();
+                principalVue.dessinerAtelier();
 
             } catch (Exception e) {
                 e.printStackTrace();

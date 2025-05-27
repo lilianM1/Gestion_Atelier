@@ -5,7 +5,6 @@
  */
 package fr.insa.eymin.gestion_atelier.modeles;
 
-
 public class Machine extends Equipement {
     // ========================== Attributs ================================
 
@@ -69,6 +68,11 @@ public class Machine extends Equipement {
         this.coutHoraire = 0;
         this.dureeUtil = 0;
         this.etatMachine = null;
+    }
+
+    public String toStringForSave() {
+        return "M;" + super.refEquipement + ";" + super.dEquipement + ";" + this.posX + ";" + this.posY + ";"
+                + this.coutHoraire + ";" + this.dureeUtil + ";" + this.etatMachine;
     }
 
     // ========================== Getters/Setters ==========================

@@ -1,4 +1,0 @@
-A;Atelier_3;10.0;10.0
-M;Mach_1;visseuse;1.0;1.0;1.0;1.0;OCCUPE
-M;Mach_2;perceuse;2.0;2.0;2.0;2.0;ARRET
-M;Mach_3;prout;3.0;3.0;3.0;3.0;DISPONIBLE

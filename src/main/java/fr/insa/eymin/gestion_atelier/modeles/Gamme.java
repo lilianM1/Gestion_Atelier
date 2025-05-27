@@ -8,8 +8,7 @@ public class Gamme {
     private String refGamme; // Référence de la gamme
     private String dGamme; // Désignation de la gamme
     private ArrayList<Operation> operations; // Liste des opérations de la gamme
-    // private ArrayList<Equipement> equipements; // Liste des équipements
-    // nécessaires pour la gamme
+    private Produit produit; // Produit associé à la gamme
 
     // ========================== Constructeurs ============================
 
@@ -20,22 +19,16 @@ public class Gamme {
         this.refGamme = null;
     }
 
-    public Gamme(String refGamme, String dGamme, ArrayList<Operation> operations, ArrayList<Equipement> equipements) {
+    public Gamme(String refGamme, String dGamme, ArrayList<Operation> operations, Produit produit) {
+        this.refGamme = refGamme;
         this.dGamme = dGamme;
         this.operations = operations;
-        // this.equipements = equipements;
-        this.refGamme = refGamme;
+        this.produit = produit;
     }
 
-    public Gamme(String refGamme, String dGamme, ArrayList<Operation> operations) {
+    public Gamme(String refGamme, String dGamme) {
         this.refGamme = refGamme;
         this.dGamme = dGamme;
-        this.operations = operations;
-        ArrayList<Equipement> listEquipements = new ArrayList<Equipement>();
-        for (Operation op : operations) {
-            listEquipements.add(op.getrefEquipement());
-        }
-        // this.equipements = listEquipements;
     }
 
     // ========================== Méthodes =================================
@@ -47,13 +40,18 @@ public class Gamme {
         for (Operation op : this.operations) {
             listeOp.add(op.getRefOperation());
         }
-        // ArrayList<String> listeEq = new ArrayList<String>();
-        // for (Equipement eq : this.equipements) {
-        // listeEq.add(eq.getRefEquipement());
-        // }
-        // System.out.println("refGamme = " + refGamme + ", dGamme = " + dGamme + ",
-        // operations = " + listeOp
-        // + ", equipements = " + listeEq + "\n");
+        System.out.println("refGamme = " + this.refGamme + ", dGamme = " + this.dGamme + ", operations = " + listeOp
+                + ", produit = " + (this.produit != null ? this.produit.getCodeProduit() : "Aucun") + "\n");
+    }
+
+    public String toStringForSave() {
+        String ligne = "G;" + this.refGamme + ";" + this.dGamme + ";";
+        ArrayList<String> listeOp = new ArrayList<String>();
+        for (Operation op : this.operations) {
+            listeOp.add(op.getRefOperation());
+        }
+        ligne += listeOp + ";" + (this.produit != null ? this.produit.getCodeProduit() : "Aucun");
+        return ligne;
     }
 
     // ---------------------------------------------------------------------
@@ -69,16 +67,16 @@ public class Gamme {
     // Calcule le coût de la gamme
     public float calculCoutGamme() {
         float cout = 0;
-        // TODO : a rafaire mais avec operations -> equipement
-        // for (Equipement eq : this.equipements) {
-        // if (eq instanceof Machine) {
-        // cout += ((Machine) eq).getCoutHoraire() * ((Machine) eq).getDureeUtil();
-        // } else if (eq instanceof Poste) {
-        // for (Machine m : ((Poste) eq).getMachines()) {
-        // cout += m.getCoutHoraire() * m.getDureeUtil();
-        // }
-        // }
-        // }
+        for (Operation op : this.operations) {
+            if (op.getRefEquipement() instanceof Machine) {
+                cout += ((Machine) op.getRefEquipement()).getCoutHoraire()
+                        * ((Machine) op.getRefEquipement()).getDureeUtil();
+            } else if (op.getRefEquipement() instanceof Poste) {
+                for (Machine m : ((Poste) op.getRefEquipement()).getMachines()) {
+                    cout += m.getCoutHoraire() * m.getDureeUtil();
+                }
+            }
+        }
         return cout;
     }
 
@@ -110,20 +108,27 @@ public class Gamme {
         this.operations = operations;
     }
 
-    // public ArrayList<Equipement> getEquipements() {
-    // return equipements;
-    // }
-
-    // public void setEquipements(ArrayList<Equipement> equipements) {
-    // this.equipements = equipements;
-    // }
-
     public String getRefGamme() {
         return refGamme;
     }
 
     public void setRefGamme(String refGamme) {
         this.refGamme = refGamme;
+    }
+
+    public Produit getProduit() {
+        return produit;
+    }
+
+    public void setProduit(Produit produit) {
+        this.produit = produit;
+    }
+
+    public void ajouterOperation(Operation operation) {
+        if (this.operations == null) {
+            this.operations = new ArrayList<>();
+        }
+        this.operations.add(operation);
     }
 
 }

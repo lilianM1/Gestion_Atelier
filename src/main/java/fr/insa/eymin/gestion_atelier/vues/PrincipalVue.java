@@ -1,15 +1,19 @@
 package fr.insa.eymin.gestion_atelier.vues;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import fr.insa.eymin.gestion_atelier.controleurs.PrincipalControleur;
 import fr.insa.eymin.gestion_atelier.modeles.*;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -22,6 +26,7 @@ import org.kordamp.ikonli.feather.Feather;
 import javafx.scene.input.KeyCombination;
 import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
+import atlantafx.base.theme.Tweaks;
 import atlantafx.base.util.Animations;
 import javafx.util.Duration;
 
@@ -38,11 +43,13 @@ public class PrincipalVue extends StackPane {
     private TextField refMach, dMach, coutHMach, dureeMach, posX, posY; // Champs pour les info de la machine
     private ComboBox<EtatMachine> etatMach; // Combo box pour l'état de la machine
     private Button modifierButton; // Bouton pour modifier la machine
+    private TreeTableView<Object> gammesTable; // Table pour afficher les gammes
 
     private ArrayList<Machine> machines = new ArrayList<>();
     private ArrayList<Produit> produits = new ArrayList<>();
     private ArrayList<Poste> postes = new ArrayList<>();
     private ArrayList<Operation> operations = new ArrayList<>();
+    private ArrayList<Gamme> gammes = new ArrayList<>();
     private Atelier atelier; // Modèle de l'atelier
     AtomicReference<String> tempRef = new AtomicReference<>();
 
@@ -53,7 +60,7 @@ public class PrincipalVue extends StackPane {
     // ========================== Constructeurs ============================
     public PrincipalVue() {
         this.planAtelier = new Pane();
-        this.controleur = new PrincipalControleur(this, machines, produits, postes, operations);
+        this.controleur = new PrincipalControleur(this, machines, produits, postes, operations, gammes);
         this.rootContainer = new StackPane();
     }
 
@@ -132,16 +139,23 @@ public class PrincipalVue extends StackPane {
         });
         MenuItem ouvrirAtelier = new MenuItem("Ouvrir Atelier", new FontIcon(Feather.FOLDER));
         ouvrirAtelier.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.CONTROL_DOWN));
-        // TODO: ajouter l'action pour ouvrir un atelier
-        MenuItem saveAtelier = new MenuItem("Sauvegarder Atelier", new FontIcon(Feather.SAVE));
+        ouvrirAtelier.setOnAction(e -> {
+            fenetreOuvrir();
+
+        });
+        MenuItem saveAtelier = new MenuItem("Enregistrer l'Atelier", new FontIcon(Feather.SAVE));
         saveAtelier.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
         saveAtelier.setOnAction(e -> {
-            controleur.sauvegarderAtelier();
+            controleur.sauvegarderAtelier(new File(
+                    "src\\main\\ressources\\data\\atelier_saves\\"
+                            + this.getAtelier().getNomAtelier() + ".txt"));
         });
-        MenuItem saveAsAtelier = new MenuItem("Sauvegarder sous");
+        MenuItem saveAsAtelier = new MenuItem("Enregistrer une copie sous");
         saveAsAtelier.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN,
                 KeyCombination.SHIFT_DOWN));
-        // TODO: ajouter l'action pour sauvegarder sous
+        saveAsAtelier.setOnAction(e -> {
+            fenetreSaveAs();
+        });
         MenuItem quitter = new MenuItem("Quitter");
         quitter.setOnAction(e -> {
             // Action pour quitter l'application
@@ -191,11 +205,18 @@ public class PrincipalVue extends StackPane {
             controleur.creerOperation();
         });
 
+        // Option pour créer une nouvelle gamme
+        MenuItem nouvelleGamme = new MenuItem("Gamme");
+        nouvelleGamme.setOnAction(e -> {
+            controleur.creerGamme();
+        });
+
         // Ajout des items au menu "Nouveau"
         sousMenuNouveau.getItems().addAll(
                 sousMenuNvEq,
                 nouveauProduit,
-                nouvelleOperation);
+                nouvelleOperation,
+                nouvelleGamme);
 
         // ------------------------- Sous-menu "Afficher" -------------------------
         // Option pour afficher la liste des machines
@@ -222,12 +243,19 @@ public class PrincipalVue extends StackPane {
             controleur.afficherOperations();
         });
 
+        // Option pour afficher la liste des gammes
+        MenuItem afficherGammes = new MenuItem("Gammes");
+        afficherGammes.setOnAction(e -> {
+            controleur.afficherGammes();
+        });
+
         // Ajout des items au menu "Afficher"
         sousMenuAfficher.getItems().addAll(
                 afficherProduits,
                 afficherMachines,
                 afficherPostes,
-                afficherOperations);
+                afficherOperations,
+                afficherGammes);
 
         gestionMenu.getItems().addAll(
                 sousMenuNouveau,
@@ -292,10 +320,14 @@ public class PrincipalVue extends StackPane {
         creerOperation.setOnAction(e -> {
             controleur.creerOperation();
         });
+        MenuItem creerGamme = new MenuItem("Gamme");
+        creerGamme.setOnAction(e -> {
+            controleur.creerGamme();
+        });
         Menu sousMenu = new Menu("Equipement");
         sousMenu.getItems().addAll(creerMachine, creerPoste);
 
-        creerEq.getItems().addAll(sousMenu, creerProduit, creerOperation);
+        creerEq.getItems().addAll(sousMenu, creerProduit, creerOperation, creerGamme);
 
         // Organisation horizontale des boutons
         HBox boutonsHb = new HBox(modifierButton, supprimerButton, creerEq);
@@ -304,9 +336,13 @@ public class PrincipalVue extends StackPane {
         // Configuration du bas du panneau d'informations
         VBox basInfo = new VBox();
         // TODO: ajouter des informations supplémentaires sur les gammes
+        gammesTable = new TreeTableView<>();
+        ecrireTreeTableView();
 
-        basInfo.getChildren().addAll(
-                new Label("Informations sur l'Atelier :"));
+        Label titreAtelier = new Label("Atelier : " + atelier.getNomAtelier());
+        titreAtelier.getStyleClass().add(Styles.TITLE_4);
+
+        basInfo.getChildren().addAll(titreAtelier, gammesTable);
 
         // Panneau d'informations sur l'équipement sélectionné
         VBox infoDroite = new VBox();
@@ -355,6 +391,7 @@ public class PrincipalVue extends StackPane {
 
         // Création d'un context menu pour le plan de l'atelier
         ContextMenu contextMenuPlan = new ContextMenu();
+        contextMenuPlan.setAutoHide(true); // Ferme le menu contextuel après une sélection
         MenuItem ajouterMachine = new MenuItem("Ajouter Machine");
         ajouterMachine.setGraphic(new FontIcon(Feather.PLUS));
         ajouterMachine.setOnAction(e -> {
@@ -363,6 +400,7 @@ public class PrincipalVue extends StackPane {
         MenuItem redessinerPlan = new MenuItem("Redessiner Plan");
         redessinerPlan.setGraphic(new FontIcon(Feather.REFRESH_CW));
         redessinerPlan.setOnAction(e -> {
+            updateTableView();
             controleur.dessinerAtelier(atelier.getLongX(), atelier.getLongY());
         });
 
@@ -370,6 +408,12 @@ public class PrincipalVue extends StackPane {
         // Ajout du menu contextuel au plan de l'atelier
         planAtelier.setOnContextMenuRequested(e -> {
             contextMenuPlan.show(planAtelier, e.getScreenX(), e.getScreenY());
+            e.consume(); // Empêche la propagation de l'événement
+        });
+        planAtelier.setOnMouseClicked(e -> {
+            if (contextMenuPlan.isShowing()) {
+                contextMenuPlan.hide();
+            }
         });
 
         SplitPane splitPane = new SplitPane(planAtelier, infoDroite); // Création du SplitPane
@@ -393,6 +437,22 @@ public class PrincipalVue extends StackPane {
         primaryStage.getIcons().add(icon);
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true); // Démarre en plein écran
+
+        primaryStage.setOnCloseRequest(e -> {
+            e.consume(); // Empêche la fermeture immédiate
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmation.setTitle("Confirmation de fermeture");
+            confirmation.setHeaderText("Voulez-vous vraiment quitter l'application ?");
+            confirmation.setContentText("Toutes les modifications non enregistrées seront perdues.");
+            ButtonType oui = new ButtonType("Quitter sans savegarder", ButtonData.YES);
+            ButtonType non = new ButtonType("Sauvegarder et quitter", ButtonData.NO);
+            ButtonType annuler = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
+            confirmation.getButtonTypes().setAll(oui, non, annuler);
+            // TODO terminer la gestion de la fermeture
+
+            confirmation.showAndWait();
+        });
+
         primaryStage.show(); // Affiche la fenêtre
 
     }
@@ -417,8 +477,7 @@ public class PrincipalVue extends StackPane {
         });
         Button ouvrirAtelierButton = new Button("Ouvrir Atelier");
         ouvrirAtelierButton.setOnAction(e -> {
-            // TODO : ajouter l'action pour ouvrir un atelier
-            // controleur.ouvrirAtelier();
+            fenetreOuvrir();
             selectionStage.close(); // Ferme la fenêtre de sélection
         });
         // Création de la disposition
@@ -545,12 +604,20 @@ public class PrincipalVue extends StackPane {
         return rootContainer;
     }
 
+    public void setRootContainer(StackPane rootContainer) {
+        this.rootContainer = rootContainer;
+    }
+
     public void setAtelier(Atelier atelier) {
         this.atelier = atelier;
     }
 
     public Atelier getAtelier() {
         return atelier;
+    }
+
+    public TreeTableView<Object> getTreeTableView() {
+        return gammesTable;
     }
 
     // Définir l'accessibilité des champs de texte et combobox
@@ -656,6 +723,135 @@ public class PrincipalVue extends StackPane {
             rootContainer = new StackPane();
 
         }
+    }
 
+    public void fenetreSaveAs() {
+        // Exécution de la tâche dans le thread de l'interface utilisateur
+        Platform.runLater(() -> {
+            // Créer un FileChooser pour sauvegarder
+            FileChooser fileChooser = new FileChooser();
+
+            // Configurer le FileChooser
+            fileChooser.setTitle("Sauvegarder l'atelier sous...");
+            fileChooser.setInitialFileName(this.getAtelier().getNomAtelier() + ".txt");
+
+            // Définir le répertoire initial
+            File repertoireInitial = new File(
+                    "src\\main\\ressources\\data\\atelier_saves\\");
+            fileChooser.setInitialDirectory(repertoireInitial);
+
+            // Définir les filtres d'extension
+            FileChooser.ExtensionFilter filtreTexte = new FileChooser.ExtensionFilter("Fichiers texte (*.txt)",
+                    "*.txt");
+            FileChooser.ExtensionFilter filtreTous = new FileChooser.ExtensionFilter("Tous les fichiers (*.*)", "*.*");
+            fileChooser.getExtensionFilters().addAll(filtreTexte, filtreTous);
+            fileChooser.setSelectedExtensionFilter(filtreTexte);
+
+            // Afficher la boîte de dialogue
+            File fichierChoisi = fileChooser.showSaveDialog(this.getPrimaryStage());
+
+            if (fichierChoisi != null) {
+                controleur.sauvegarderAtelier(fichierChoisi);
+            }
+        });
+    }
+
+    public void fenetreOuvrir() {
+        Platform.runLater(() -> {
+            // Créer un FileChooser pour sauvegarder
+            FileChooser fileChooser = new FileChooser();
+
+            // Configurer le FileChooser
+            fileChooser.setTitle("Charger un atelier");
+
+            // Définir le répertoire initial
+            File repertoireInitial = new File(
+                    "src\\main\\ressources\\data\\atelier_saves\\");
+            fileChooser.setInitialDirectory(repertoireInitial);
+
+            // Définir les filtres d'extension
+            FileChooser.ExtensionFilter filtreTexte = new FileChooser.ExtensionFilter("Fichiers texte (*.txt)",
+                    "*.txt");
+            FileChooser.ExtensionFilter filtreTous = new FileChooser.ExtensionFilter("Tous les fichiers (*.*)", "*.*");
+            fileChooser.getExtensionFilters().addAll(filtreTexte, filtreTous);
+            fileChooser.setSelectedExtensionFilter(filtreTexte);
+
+            // Afficher la boîte de dialogue
+            File fichierChoisi = fileChooser.showOpenDialog(this.getPrimaryStage());
+            if (fichierChoisi != null) {
+                fermerFenetre();
+                controleur.chargerAtelier(fichierChoisi);
+            }
+        });
+    }
+
+    public void updateTableView() {
+        // Efface les éléments existants
+        gammesTable.getRoot().getChildren().clear();
+        ecrireTreeTableView();
+    }
+
+    public void ecrireTreeTableView() {
+        gammesTable.setShowRoot(false);
+        gammesTable.setPlaceholder(new Label("Aucune gamme associée à cet atelier"));
+        gammesTable.setColumnResizePolicy(TreeTableView.UNCONSTRAINED_RESIZE_POLICY);
+
+        // Une seule colonne pour "Référence"
+        TreeTableColumn<Object, String> refGammeCol = new TreeTableColumn<>("Gamme");
+        refGammeCol.setCellValueFactory(param -> {
+            Object obj = param.getValue().getValue();
+            if (obj instanceof Gamme g)
+                return new ReadOnlyStringWrapper(g.getRefGamme() + " - " + g.getdGamme());
+            if (obj instanceof Operation o)
+                return new ReadOnlyStringWrapper(o.getRefOperation() + " - " + o.getdOperation());
+            return new ReadOnlyStringWrapper("");
+        });
+
+        TreeTableColumn<Object, String> prodCol = new TreeTableColumn<>("Produit");
+        prodCol.setCellValueFactory(param -> {
+            Object obj = param.getValue().getValue();
+            if (obj instanceof Gamme g && g.getProduit() != null)
+                return new ReadOnlyStringWrapper(
+                        g.getProduit().getCodeProduit() + " - " + g.getProduit().getdProduit());
+            return new ReadOnlyStringWrapper("");
+        });
+
+        TreeTableColumn<Object, String> coutCol = new TreeTableColumn<>("Coût");
+        coutCol.setCellValueFactory(param -> {
+            Object obj = param.getValue().getValue();
+            if (obj instanceof Gamme g)
+                return new ReadOnlyStringWrapper(String.valueOf(g.calculCoutGamme()) + " €");
+            return new ReadOnlyStringWrapper("");
+        });
+
+        TreeTableColumn<Object, String> refEqCol = new TreeTableColumn<>("Equipement");
+        refEqCol.setCellValueFactory(param -> {
+            Object obj = param.getValue().getValue();
+            if (obj instanceof Operation o)
+                return new ReadOnlyStringWrapper(o.getRefEquipement().getRefEquipement() + " - "
+                        + o.getRefEquipement().getdEquipement());
+            return new ReadOnlyStringWrapper("");
+        });
+
+        TreeTableColumn<Object, String> dureeCol = new TreeTableColumn<>("Durée");
+        dureeCol.setCellValueFactory(param -> {
+            Object obj = param.getValue().getValue();
+            if (obj instanceof Gamme g)
+                return new ReadOnlyStringWrapper(String.valueOf(g.calculDureeGamme()) + " h");
+            return new ReadOnlyStringWrapper("");
+        });
+
+        gammesTable.getColumns().setAll(refGammeCol, prodCol, coutCol, dureeCol, refEqCol);
+
+        // Création du root invisible
+        TreeItem<Object> root = new TreeItem<>(null);
+        for (Gamme gamme : gammes) {
+            TreeItem<Object> gammeItem = new TreeItem<>(gamme);
+            for (Operation op : gamme.getOperations()) {
+                gammeItem.getChildren().add(new TreeItem<>(op));
+            }
+            root.getChildren().add(gammeItem);
+        }
+        gammesTable.setRoot(root);
     }
 }
