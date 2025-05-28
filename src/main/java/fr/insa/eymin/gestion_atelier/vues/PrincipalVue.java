@@ -9,7 +9,6 @@ import fr.insa.eymin.gestion_atelier.modeles.*;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -850,7 +849,7 @@ public class PrincipalVue extends StackPane {
         });
         MenuItem suppr = new MenuItem("Supprimer");
         suppr.setGraphic(new FontIcon(Feather.TRASH_2));
-        suppr.setOnAction(e -> { // TODO
+        suppr.setOnAction(e -> {
             TreeItem<Object> selectedItem = gammesTable.getSelectionModel().getSelectedItem();
             if (selectedItem == null) {
                 afficherAlerte(Alert.AlertType.WARNING, "Aucun élément sélectionné",
