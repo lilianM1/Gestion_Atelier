@@ -15,6 +15,7 @@ fr\insa\eymin\gestion_atelier\modeles\Operateur.class
 fr\insa\eymin\gestion_atelier\vues\MachineVue.class
 fr\insa\eymin\gestion_atelier\controleurs\MachineControleur.class
 fr\insa\eymin\gestion_atelier\modeles\Poste.class
+fr\insa\eymin\gestion_atelier\vues\OperationVue$3.class
 fr\insa\eymin\gestion_atelier\modeles\Atelier.class
 fr\insa\eymin\gestion_atelier\vues\OperationVue$1.class
 fr\insa\eymin\gestion_atelier\controleurs\OperationControleur.class
@@ -25,4 +26,5 @@ fr\insa\eymin\gestion_atelier\modeles\Operation.class
 fr\insa\eymin\gestion_atelier\modeles\Produit.class
 fr\insa\eymin\gestion_atelier\controleurs\GammeControleur.class
 fr\insa\eymin\gestion_atelier\controleurs\AtelierControleur$1.class
+fr\insa\eymin\gestion_atelier\vues\OperationVue$4.class
 fr\insa\eymin\gestion_atelier\modeles\EtatMachine.class
