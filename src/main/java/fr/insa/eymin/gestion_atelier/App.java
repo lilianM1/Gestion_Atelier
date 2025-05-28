@@ -10,8 +10,8 @@ public class App extends Application {
     public void start(Stage primaryStage) {
         Application.setUserAgentStylesheet(new NordLight().getUserAgentStylesheet());
         // Crée une instance de la vue principale
-        PrincipalVue app = new PrincipalVue();
-        app.startWindow();
+        PrincipalVue mainVue = new PrincipalVue();
+        mainVue.startWindow();
     }
 
     // Méthode principale
