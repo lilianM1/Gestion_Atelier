@@ -1,4 +1,4 @@
-A;ATELIER;10.0;10.0
+A;Atelier_1;10.0;10.0
 M;Mach_1;Scie sauteuse;3.0;4.0;7.0;1.0;DISPONIBLE
 M;Mach_2;Scie circulaire;1.0;2.0;4.0;0.25;DISPONIBLE
 M;Mach_3;Perceuse;9.0;8.0;5.0;2.0;DISPONIBLE
