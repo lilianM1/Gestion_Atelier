@@ -102,7 +102,7 @@ public class PrincipalControleur {
         ArrayList<Operation> operations = this.operations;
         ArrayList<Produit> produits = this.produits;
 
-        GammeControleur controleur = new GammeControleur(gammes, principalVue);
+        GammeControleur controleur = new GammeControleur(gammes, principalVue, operations, produits);
 
         controleur.setOperations(operations);
         controleur.setProduits(produits);
@@ -263,10 +263,10 @@ public class PrincipalControleur {
                         coutHMach.getText(), dureeMach.getText(), etatMach.getValue(), posXField.getText(),
                         posYField.getText());
                 updateOp();
+                principalVue.updateTableView();
 
             }
             principalVue.dessinerAtelier();
-            principalVue.updateTableView();
 
         }
     }
@@ -296,6 +296,11 @@ public class PrincipalControleur {
 
                 // Redessine l'atelier après la suppression
                 principalVue.dessinerAtelier();
+
+                // Met à jour la table
+                principalVue.updateTableView();
+                principalVue.getTreeTableView().refresh();
+                principalVue.ecrireTreeTableView();
 
                 // Affiche une notification de confirmation
                 principalVue.afficherNotif("Machine supprimée avec succès", Feather.TRASH_2,
@@ -329,6 +334,33 @@ public class PrincipalControleur {
 
     public void deleteMachine(String refMach) {
         machines.removeIf(m -> m.getRefEquipement().equals(refMach));
+        // Supprimer la machine de tous les postes
+        postes.forEach(poste -> poste.getMachines().removeIf(m -> m.getRefEquipement().equals(refMach)));
+        // Supprimer la machine de toutes les opérations
+        operations.forEach(op -> {
+            if (op.getRefEquipement() != null && op.getRefEquipement().getRefEquipement().equals(refMach)) {
+                op.setrefEquipement(null); // Ou gérer autrement si nécessaire
+            }
+        });
+    }
+
+    public void modifierPoste(Poste poste) {
+        PosteControleur controleur = new PosteControleur(postes, machines, principalVue);
+        PosteVue vue = new PosteVue(controleur);
+        vue.afficherFenetreModification(poste);
+    }
+
+    public void modifierOperation(Operation operation) {
+        // Passer toutes les listes nécessaires
+        OperationControleur controleur = new OperationControleur(operations, machines, postes, principalVue);
+        OperationVue vue = new OperationVue(controleur);
+        vue.afficherFenetreModification(operation);
+    }
+
+    public void modifierGamme(Gamme gamme) {
+        GammeControleur controleur = new GammeControleur(gammes, principalVue, operations, produits);
+        GammeVue vue = new GammeVue(controleur);
+        vue.afficherFenetreModification(gamme);
     }
 
     public void sauvegarderAtelier(File fichier) {
@@ -683,4 +715,65 @@ public class PrincipalControleur {
 
         return operationsAssociees;
     }
+
+    public void supprimerPoste(Poste poste) {
+        // Demande de confirmation avant la suppression
+        boolean confirme = principalVue.afficherAlerteConfirmation(
+                "Confirmation",
+                "Êtes-vous sûr de vouloir supprimer cet équipement ?",
+                "Cette action est irréversible.");
+
+        // Si l'utilisateur confirme, on procède à la suppression
+        if (confirme) {
+
+            postes.remove(poste);
+            // Supprimer le poste de toutes les opérations
+            operations.forEach(op -> {
+                if (op.getRefEquipement() != null
+                        && op.getRefEquipement().getRefEquipement().equals(poste.getRefEquipement())) {
+                    op.setrefEquipement(null);
+                }
+            });
+
+            // Mettre à jour l'interface
+            principalVue.ecrireTreeTableView();
+            principalVue.updateTableView();
+        }
+    }
+
+    public void supprimerOperation(Operation operation) {
+        // Demande de confirmation avant la suppression
+        boolean confirme = principalVue.afficherAlerteConfirmation(
+                "Confirmation",
+                "Êtes-vous sûr de vouloir supprimer cette opération ?",
+                "Cette action est irréversible.");
+
+        // Si l'utilisateur confirme, on procède à la suppression
+        if (confirme) {
+            operations.remove(operation);
+            // Supprimer l'opération de toutes les gammes
+            gammes.forEach(gamme -> gamme.getOperations().removeIf(op -> op.equals(operation)));
+
+            // Mettre à jour l'interface
+            principalVue.ecrireTreeTableView();
+            principalVue.updateTableView();
+        }
+    }
+
+    public void supprimerGamme(Gamme gamme) {
+        // Demande de confirmation avant la suppression
+        boolean confirme = principalVue.afficherAlerteConfirmation(
+                "Confirmation",
+                "Êtes-vous sûr de vouloir supprimer cette gamme ?",
+                "Cette action est irréversible.");
+
+        // Si l'utilisateur confirme, on procède à la suppression
+        if (confirme) {
+            gammes.remove(gamme);
+            // Mettre à jour l'interface
+            principalVue.ecrireTreeTableView();
+            principalVue.updateTableView();
+        }
+    }
+
 }

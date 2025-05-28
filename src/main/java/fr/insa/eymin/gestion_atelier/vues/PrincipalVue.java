@@ -9,6 +9,7 @@ import fr.insa.eymin.gestion_atelier.modeles.*;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -18,6 +19,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.*;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
@@ -335,7 +337,6 @@ public class PrincipalVue extends StackPane {
 
         // Configuration du bas du panneau d'informations
         VBox basInfo = new VBox();
-        // TODO: ajouter des informations supplémentaires sur les gammes
         gammesTable = new TreeTableView<>();
         ecrireTreeTableView();
 
@@ -416,7 +417,12 @@ public class PrincipalVue extends StackPane {
             }
         });
 
-        SplitPane splitPane = new SplitPane(planAtelier, infoDroite); // Création du SplitPane
+        StackPane planWrapper = new StackPane();
+        planWrapper.setPadding(new javafx.geometry.Insets(15)); // Espacement intérieur
+
+        planWrapper.getChildren().add(planAtelier); // Ajout du plan de l'atelier dans le StackPane
+
+        SplitPane splitPane = new SplitPane(planWrapper, infoDroite); // Création du SplitPane
         splitPane.setOrientation(Orientation.HORIZONTAL);
         splitPane.setDividerPositions(0.8); // Position du séparateur
 
@@ -444,13 +450,22 @@ public class PrincipalVue extends StackPane {
             confirmation.setTitle("Confirmation de fermeture");
             confirmation.setHeaderText("Voulez-vous vraiment quitter l'application ?");
             confirmation.setContentText("Toutes les modifications non enregistrées seront perdues.");
-            ButtonType oui = new ButtonType("Quitter sans savegarder", ButtonData.YES);
-            ButtonType non = new ButtonType("Sauvegarder et quitter", ButtonData.NO);
+            ButtonType oui = new ButtonType("Quitter sans savegarder", ButtonData.NO);
+            ButtonType non = new ButtonType("Sauvegarder et quitter", ButtonData.YES);
             ButtonType annuler = new ButtonType("Annuler", ButtonData.CANCEL_CLOSE);
             confirmation.getButtonTypes().setAll(oui, non, annuler);
-            // TODO terminer la gestion de la fermeture
-
-            confirmation.showAndWait();
+            Optional<ButtonType> result = confirmation.showAndWait();
+            if (result.isPresent() && result.get() == oui) {
+                Platform.exit(); // Quitte l'application sans sauvegarder
+            } else if (result.isPresent() && result.get() == non) {
+                // Sauvegarde l'atelier avant de quitter
+                controleur.sauvegarderAtelier(new File(
+                        "src\\main\\ressources\\data\\atelier_saves\\"
+                                + this.getAtelier().getNomAtelier() + ".txt"));
+                Platform.exit(); // Quitte l'application après la sauvegarde
+            } else {
+                confirmation.close();
+            }
         });
 
         primaryStage.show(); // Affiche la fenêtre
@@ -493,63 +508,6 @@ public class PrincipalVue extends StackPane {
 
     public void dessinerAtelier() {
         controleur.dessinerAtelier(atelier.getLongX(), atelier.getLongY());
-    }
-
-    // Méthode appelée par le contrôleur pour dessiner les machines
-    public void afficherMachinesSurPlan(ArrayList<Machine> machines, float longX, float longY) {
-        // Effacement du contenu précédent pour éviter les superpositions
-        planAtelier.getChildren().clear();
-        // Parcours de toutes les machines à placer sur le plan
-        for (Machine m : machines) {
-            // Création d'un bouton représentant la machine, identifié par sa référence
-            Button machineButton = new Button(m.getRefEquipement());
-            machineButton.setMnemonicParsing(false); // Désactive l'interprétation des caractères spéciaux (ex: '_')
-
-            // Création du menu contextuel pour le bouton de la machine
-            ContextMenu menuBtnMach = new ContextMenu();
-            MenuItem modifierItem = new MenuItem("Modifier");
-            modifierItem.setGraphic(new FontIcon(Feather.EDIT)); // Icône pour le menu
-            modifierItem.setOnAction(e -> {
-                afficherDetailsMachine(m);
-                controleur.modifierMachine(modifierButton, tempRef);
-            });
-            MenuItem supprimerItem = new MenuItem("Supprimer");
-            supprimerItem.setGraphic(new FontIcon(Feather.TRASH_2)); // Icône pour le menu
-            supprimerItem.setOnAction(e -> {
-                afficherDetailsMachine(m);
-                controleur.supprimerMachine();
-            });
-
-            menuBtnMach.getItems().addAll(modifierItem, new SeparatorMenuItem(), supprimerItem);
-
-            // Configuration de l'action lors du clic: afficher les détails de la machine
-            machineButton.setOnAction(e -> {
-                afficherDetailsMachine(m);
-            });
-
-            machineButton.setContextMenu(menuBtnMach); // Associer le menu contextuel au bouton
-
-            // Calcul du mapping de la position de la machine par rapport aux dimensions
-            // réelles de l'atelier
-            // et à la taille en pixels du panneau d'affichage
-            double scaleX = planAtelier.getWidth() / longX;
-            double scaleY = planAtelier.getHeight() / longY;
-
-            // Application du mapping pour positionner correctement la machine sur le plan
-            double mappedX = m.getPosX() * scaleX;
-            double mappedY = m.getPosY() * scaleY;
-
-            // Mise à jour de la position du bouton avec les coordonnées mappées
-            machineButton.setLayoutX(mappedX);
-            machineButton.setLayoutY(mappedY);
-
-            // Positionnement du bouton sur le plan selon les coordonnées de la machine
-            // machineButton.setLayoutX(m.getPosX());
-            // machineButton.setLayoutY(m.getPosY());
-
-            // Ajout du bouton au panneau d'affichage
-            planAtelier.getChildren().add(machineButton);
-        }
     }
 
     // Affiche les détails d'une machine dans les champs de l'interface
@@ -786,24 +744,24 @@ public class PrincipalVue extends StackPane {
     }
 
     public void updateTableView() {
-        // Efface les éléments existants
-        gammesTable.getRoot().getChildren().clear();
-        ecrireTreeTableView();
+        this.getTreeTableView().refresh();
     }
 
     public void ecrireTreeTableView() {
         gammesTable.setShowRoot(false);
         gammesTable.setPlaceholder(new Label("Aucune gamme associée à cet atelier"));
-        gammesTable.setColumnResizePolicy(TreeTableView.UNCONSTRAINED_RESIZE_POLICY);
+        gammesTable.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
 
         // Une seule colonne pour "Référence"
-        TreeTableColumn<Object, String> refGammeCol = new TreeTableColumn<>("Gamme");
+        TreeTableColumn<Object, String> refGammeCol = new TreeTableColumn<>("Référence");
         refGammeCol.setCellValueFactory(param -> {
             Object obj = param.getValue().getValue();
             if (obj instanceof Gamme g)
                 return new ReadOnlyStringWrapper(g.getRefGamme() + " - " + g.getdGamme());
             if (obj instanceof Operation o)
                 return new ReadOnlyStringWrapper(o.getRefOperation() + " - " + o.getdOperation());
+            if (obj instanceof Equipement e)
+                return new ReadOnlyStringWrapper(e.getRefEquipement() + " - " + e.getdEquipement());
             return new ReadOnlyStringWrapper("");
         });
 
@@ -821,15 +779,8 @@ public class PrincipalVue extends StackPane {
             Object obj = param.getValue().getValue();
             if (obj instanceof Gamme g)
                 return new ReadOnlyStringWrapper(String.valueOf(g.calculCoutGamme()) + " €");
-            return new ReadOnlyStringWrapper("");
-        });
-
-        TreeTableColumn<Object, String> refEqCol = new TreeTableColumn<>("Equipement");
-        refEqCol.setCellValueFactory(param -> {
-            Object obj = param.getValue().getValue();
-            if (obj instanceof Operation o)
-                return new ReadOnlyStringWrapper(o.getRefEquipement().getRefEquipement() + " - "
-                        + o.getRefEquipement().getdEquipement());
+            if (obj instanceof Machine m)
+                return new ReadOnlyStringWrapper(String.valueOf(m.getCoutHoraire()) + " €/h");
             return new ReadOnlyStringWrapper("");
         });
 
@@ -838,20 +789,240 @@ public class PrincipalVue extends StackPane {
             Object obj = param.getValue().getValue();
             if (obj instanceof Gamme g)
                 return new ReadOnlyStringWrapper(String.valueOf(g.calculDureeGamme()) + " h");
+            if (obj instanceof Operation o)
+                return new ReadOnlyStringWrapper(String.valueOf(o.getDureeOp()) + " h");
+            if (obj instanceof Machine m)
+                return new ReadOnlyStringWrapper(String.valueOf(m.getDureeUtil()) + " h");
             return new ReadOnlyStringWrapper("");
+
         });
 
-        gammesTable.getColumns().setAll(refGammeCol, prodCol, coutCol, dureeCol, refEqCol);
+        gammesTable.getColumns().setAll(refGammeCol, prodCol, coutCol, dureeCol);
+        gammesTable.tableMenuButtonVisibleProperty().set(true); // Affiche le bouton de menu de la table
 
         // Création du root invisible
         TreeItem<Object> root = new TreeItem<>(null);
         for (Gamme gamme : gammes) {
             TreeItem<Object> gammeItem = new TreeItem<>(gamme);
             for (Operation op : gamme.getOperations()) {
-                gammeItem.getChildren().add(new TreeItem<>(op));
+                TreeItem<Object> operationItem = new TreeItem<>(op);
+                if (op.getRefEquipement() instanceof Poste) {
+                    TreeItem<Object> posteItem = new TreeItem<>(op.getRefEquipement());
+                    operationItem.getChildren().add(posteItem);
+                    for (Equipement eq : ((Poste) op.getRefEquipement()).getMachines()) {
+                        TreeItem<Object> equipementItem = new TreeItem<>(eq);
+                        posteItem.getChildren().add(equipementItem);
+                    }
+                } else if (op.getRefEquipement() instanceof Machine) {
+                    TreeItem<Object> machineItem = new TreeItem<>(op.getRefEquipement());
+                    operationItem.getChildren().add(machineItem);
+                }
+                gammeItem.getChildren().add(operationItem);
             }
+
             root.getChildren().add(gammeItem);
         }
+
+        ContextMenu gammeMenu = new ContextMenu();
+        MenuItem modifier = new MenuItem("Modifier");
+        modifier.setGraphic(new FontIcon(Feather.EDIT));
+        modifier.setOnAction(e -> {
+            TreeItem<Object> selectedItem = gammesTable.getSelectionModel().getSelectedItem();
+            if (selectedItem == null) {
+                afficherAlerte(Alert.AlertType.WARNING, "Aucun élément sélectionné",
+                        "Veuillez sélectionner une référence à modifier.",
+                        "Sélectionnez une référence dans la table pour la modifier.");
+                return;
+            } else if (selectedItem.getValue() instanceof Machine m) {
+                afficherDetailsMachine(m);
+                controleur.modifierMachine(modifierButton, tempRef);
+                return;
+            } else if (selectedItem.getValue() instanceof Poste p) {
+                controleur.modifierPoste(p);
+                return;
+            } else if (selectedItem.getValue() instanceof Operation o) {
+                controleur.modifierOperation(o);
+                return;
+            } else if (selectedItem.getValue() instanceof Gamme g) {
+                controleur.modifierGamme(g);
+                return;
+            }
+        });
+        MenuItem suppr = new MenuItem("Supprimer");
+        suppr.setGraphic(new FontIcon(Feather.TRASH_2));
+        suppr.setOnAction(e -> { // TODO
+            TreeItem<Object> selectedItem = gammesTable.getSelectionModel().getSelectedItem();
+            if (selectedItem == null) {
+                afficherAlerte(Alert.AlertType.WARNING, "Aucun élément sélectionné",
+                        "Veuillez sélectionner une référence à supprimer.",
+                        "Sélectionnez une référence dans la table pour la supprimer.");
+                return;
+            } else if (selectedItem.getValue() instanceof Machine m) {
+                afficherDetailsMachine(m);
+                controleur.supprimerMachine();
+                return;
+            } else if (selectedItem.getValue() instanceof Poste p) {
+                controleur.supprimerPoste(p);
+                return;
+            } else if (selectedItem.getValue() instanceof Operation o) {
+                controleur.supprimerOperation(o);
+                return;
+            } else if (selectedItem.getValue() instanceof Gamme g) {
+                controleur.supprimerGamme(g);
+                return;
+            }
+
+        });
+        gammeMenu.getItems().addAll(modifier, new SeparatorMenuItem(), suppr);
+        gammesTable.setContextMenu(gammeMenu);
+
+        gammesTable.getStyleClass().add(Tweaks.ALT_ICON);
         gammesTable.setRoot(root);
     }
+
+    // Méthode appelée par le contrôleur pour dessiner les machines
+    public void afficherMachinesSurPlan(ArrayList<Machine> machines, float longX, float longY) {
+        // Effacement du contenu précédent pour éviter les superpositions
+        planAtelier.getChildren().clear();
+
+        // Calcul du ratio de l'atelier et du panneau pour préserver les proportions
+        double ratioAtelier = longX / longY;
+        double ratioPanneau = planAtelier.getWidth() / planAtelier.getHeight();
+
+        double scale;
+        double offsetX = 0;
+        double offsetY = 0;
+
+        // Choisir l'échelle qui respecte les proportions
+        if (ratioAtelier > ratioPanneau) {
+            // L'atelier est plus large proportionnellement : on se base sur la largeur
+            scale = planAtelier.getWidth() / longX;
+            offsetY = (planAtelier.getHeight() - (longY * scale)) / 2;
+        } else {
+            // L'atelier est plus haut proportionnellement : on se base sur la hauteur
+            scale = planAtelier.getHeight() / longY;
+            offsetX = (planAtelier.getWidth() - (longX * scale)) / 2;
+        }
+
+        // Épaisseur des murs (doit correspondre à celle utilisée dans
+        // dessinerMursAtelier)
+        double epaisseurMur = 5;
+
+        // Dessiner les murs de l'atelier
+        dessinerMursAtelier(longX, longY, scale, offsetX, offsetY);
+
+        // Taille approximative des boutons
+        final double largeurBouton = 80;
+        final double hauteurBouton = 33;
+
+        // Parcours de toutes les machines à placer sur le plan
+        for (Machine m : machines) {
+            // Création d'un bouton représentant la machine, identifié par sa référence
+            Button machineButton = new Button(m.getRefEquipement());
+            machineButton.setMnemonicParsing(false);
+
+            // Définir la taille du bouton
+            machineButton.setPrefSize(largeurBouton, hauteurBouton);
+            machineButton.setMinSize(largeurBouton, hauteurBouton);
+            machineButton.setMaxSize(largeurBouton, hauteurBouton);
+
+            // Création du menu contextuel pour le bouton de la machine
+            ContextMenu menuBtnMach = new ContextMenu();
+            MenuItem modifierItem = new MenuItem("Modifier");
+            modifierItem.setGraphic(new FontIcon(Feather.EDIT)); // Icône pour le menu
+            modifierItem.setOnAction(e -> {
+                afficherDetailsMachine(m);
+                controleur.modifierMachine(modifierButton, tempRef);
+            });
+            MenuItem supprimerItem = new MenuItem("Supprimer");
+            supprimerItem.setGraphic(new FontIcon(Feather.TRASH_2)); // Icône pour le menu
+            supprimerItem.setOnAction(e -> {
+                afficherDetailsMachine(m);
+                controleur.supprimerMachine();
+            });
+
+            menuBtnMach.getItems().addAll(modifierItem, new SeparatorMenuItem(), supprimerItem);
+
+            // Configuration de l'action lors du clic: afficher les détails de la machine
+            machineButton.setOnAction(e -> {
+                afficherDetailsMachine(m);
+            });
+
+            machineButton.setContextMenu(menuBtnMach);
+
+            // Calcul de l'espace utilisable à l'intérieur des murs
+            double espaceMurX = epaisseurMur / scale;
+            double espaceMurY = epaisseurMur / scale;
+            double espaceBoutonX = largeurBouton / scale;
+            double espaceBoutonY = hauteurBouton / scale;
+
+            // Zone utilisable = taille totale - 2*épaisseur_murs - taille_bouton
+            double zoneUtileX = longX - (2 * espaceMurX) - espaceBoutonX;
+            double zoneUtileY = longY - (2 * espaceMurY) - espaceBoutonY;
+
+            // Calcul des positions en pourcentage de la zone totale
+            double pourcentageX = Math.min(1.0, Math.max(0.0, m.getPosX() / longX));
+            double pourcentageY = Math.min(1.0, Math.max(0.0, m.getPosY() / longY));
+
+            // Position finale = décalage_mur + pourcentage * zone_utile
+            double positionFinaleX = espaceMurX + (pourcentageX * zoneUtileX);
+            double positionFinaleY = espaceMurY + (pourcentageY * zoneUtileY);
+
+            // Application du mapping avec échelle uniforme et centrage
+            machineButton.layoutXProperty().bind(
+                    planAtelier.widthProperty()
+                            .multiply(0)
+                            .add(positionFinaleX * scale + offsetX));
+
+            machineButton.layoutYProperty().bind(
+                    planAtelier.heightProperty()
+                            .multiply(0)
+                            .add(positionFinaleY * scale + offsetY));
+
+            // Ajout du bouton au panneau d'affichage
+            planAtelier.getChildren().add(machineButton);
+        }
+    }
+
+    // Nouvelle méthode pour dessiner les murs
+    private void dessinerMursAtelier(float longX, float longY, double scale, double offsetX, double offsetY) {
+        // Épaisseur des murs
+        double epaisseurMur = 5;
+
+        // Couleur des murs
+        javafx.scene.paint.Color couleurMur = javafx.scene.paint.Color.DARKGRAY;
+
+        // Calcul des dimensions à l'échelle
+        double largeurAtelier = longX * scale;
+        double hauteurAtelier = longY * scale;
+
+        // Mur haut
+        Rectangle murHaut = new Rectangle(largeurAtelier, epaisseurMur);
+        murHaut.setFill(couleurMur);
+        murHaut.setX(offsetX);
+        murHaut.setY(offsetY);
+        planAtelier.getChildren().add(murHaut);
+
+        // Mur bas
+        Rectangle murBas = new Rectangle(largeurAtelier, epaisseurMur);
+        murBas.setFill(couleurMur);
+        murBas.setX(offsetX);
+        murBas.setY(offsetY + hauteurAtelier - epaisseurMur);
+        planAtelier.getChildren().add(murBas);
+
+        // Mur gauche
+        Rectangle murGauche = new Rectangle(epaisseurMur, hauteurAtelier);
+        murGauche.setFill(couleurMur);
+        murGauche.setX(offsetX);
+        murGauche.setY(offsetY);
+        planAtelier.getChildren().add(murGauche);
+
+        // Mur droit
+        Rectangle murDroit = new Rectangle(epaisseurMur, hauteurAtelier);
+        murDroit.setFill(couleurMur);
+        murDroit.setX(offsetX + largeurAtelier - epaisseurMur);
+        murDroit.setY(offsetY);
+        planAtelier.getChildren().add(murDroit);
+    }
+
 }

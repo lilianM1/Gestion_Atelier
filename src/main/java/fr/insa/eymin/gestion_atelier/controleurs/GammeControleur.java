@@ -17,12 +17,15 @@ public class GammeControleur {
 
     private GammeVue vue;
 
-    private ArrayList<Produit> produits = new ArrayList<Produit>();
+    private ArrayList<Produit> produits;
 
-    public GammeControleur(ArrayList<Gamme> gammes, PrincipalVue principalVue) {
+    public GammeControleur(ArrayList<Gamme> gammes, PrincipalVue principalVue, ArrayList<Operation> operations,
+            ArrayList<Produit> produits) {
         this.gammes = gammes;
         this.vue = new GammeVue(this);
         this.principalVue = principalVue;
+        this.operations = operations;
+        this.produits = produits;
     }
 
     public ArrayList<Produit> getProduits() {
@@ -55,10 +58,43 @@ public class GammeControleur {
             gammes.add(gamme);
             principalVue.afficherNotif("Gamme créée avec succès", Feather.CHECK_SQUARE,
                     principalVue.getRootContainer(), "info");
-            principalVue.updateTableView();
+            principalVue.ecrireTreeTableView();
             return true;
         } catch (Exception e) {
             vue.afficherErreur("Erreur", "Erreur lors de la création de la gamme",
+                    "Une erreur est survenue : " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean modifierGamme(Gamme gamme, String refGamme, String dGamme, Produit produit,
+            ArrayList<Operation> operations) {
+        try {
+            // Vérification des champs vides
+            if (refGamme.isEmpty() || dGamme.isEmpty() || produit == null || operations.isEmpty()) {
+                vue.afficherErreur("Erreur", "Champs vides",
+                        "Veuillez remplir tous les champs obligatoires.");
+                return false;
+            }
+
+            // Vérification si la gamme existe déjà
+            if (gammes.stream().anyMatch(g -> g.getRefGamme().equals(refGamme) && !g.equals(gamme))) {
+                vue.afficherErreur("Erreur", "Gamme déjà existante",
+                        "La gamme avec la référence " + refGamme + " existe déjà.");
+                return false;
+            }
+
+            // Modification de la gamme
+            gamme.setRefGamme(refGamme);
+            gamme.setdGamme(dGamme);
+            gamme.setProduit(produit);
+            gamme.setOperations(operations);
+            principalVue.ecrireTreeTableView();
+            principalVue.afficherNotif("Gamme modifiée avec succès", Feather.CHECK_SQUARE,
+                    principalVue.getRootContainer(), "info");
+            return true;
+        } catch (Exception e) {
+            vue.afficherErreur("Erreur", "Erreur lors de la modification de la gamme",
                     "Une erreur est survenue : " + e.getMessage());
             return false;
         }

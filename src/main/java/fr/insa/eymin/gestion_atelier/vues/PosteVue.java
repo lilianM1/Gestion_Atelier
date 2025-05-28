@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import atlantafx.base.theme.Styles;
 import fr.insa.eymin.gestion_atelier.controleurs.PosteControleur;
 import fr.insa.eymin.gestion_atelier.modeles.Machine;
+import fr.insa.eymin.gestion_atelier.modeles.Poste;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -130,4 +131,110 @@ public class PosteVue {
         creerPosteStage.show();
     }
 
+    public void afficherFenetreModification(Poste poste) {
+        Stage creerPosteStage = new Stage();
+        creerPosteStage.setTitle("Modifier un poste de travail");
+
+        // Champs de saisie
+        TextField refPosteField = new TextField();
+        refPosteField.setText(poste.getRefEquipement());
+        TextField dPosteField = new TextField();
+        dPosteField.setText(poste.getdEquipement());
+
+        // Liste des machines disponibles
+        ListView<String> machinesListView = new ListView<>();
+        machinesListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        machinesListView.getStyleClass().add(Styles.STRIPED);
+
+        // Remplir la liste des machines
+        ArrayList<Machine> machines = controleur.getMachines();
+        ArrayList<String> nomsMachines = new ArrayList<>();
+        for (Machine m : machines) {
+            nomsMachines.add(m.getRefEquipement());
+        }
+        machinesListView.setItems(FXCollections.observableArrayList(nomsMachines));
+
+        // Sélectionner les machines du poste actuel
+        machinesListView.getSelectionModel().clearSelection();
+        for (Machine m : poste.getMachines()) {
+            if (nomsMachines.contains(m.getRefEquipement())) {
+                machinesListView.getSelectionModel().select(m.getRefEquipement());
+            }
+        }
+
+        // Boutons
+        Button validerButton = new Button("Valider");
+        validerButton.getStyleClass().add(Styles.ACCENT);
+        Button annulerButton = new Button("Annuler");
+
+        // Action du bouton Créer
+        validerButton.setOnAction(e -> {
+            if (refPosteField.getText().isEmpty() || dPosteField.getText().isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("Champs vides");
+                alert.setContentText("Veuillez remplir tous les champs.");
+                alert.showAndWait();
+                return;
+            }
+
+            if (controleur.posteExistant(refPosteField.getText())
+                    && !poste.getRefEquipement().equals(refPosteField.getText())) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("Poste existant");
+                alert.setContentText("Un poste avec cette référence existe déjà.");
+                alert.showAndWait();
+                return;
+            }
+
+            // Récupérer les machines sélectionnées
+            ArrayList<Machine> machinesSelectionnees = new ArrayList<>();
+            for (String nomMachine : machinesListView.getSelectionModel().getSelectedItems()) {
+                for (Machine m : machines) {
+                    if (m.getRefEquipement().equals(nomMachine)) {
+                        machinesSelectionnees.add(m);
+                        break;
+                    }
+                }
+            }
+
+            // Modifier le poste
+            controleur.modifierPoste(poste, refPosteField.getText(), dPosteField.getText(), machinesSelectionnees);
+            // Fermer la fenêtre
+            PosteControleur.fermerFenetre(creerPosteStage);
+        });
+
+        // Action du bouton Terminer
+        annulerButton.setOnAction(e -> {
+            PosteControleur.fermerFenetre(creerPosteStage);
+        });
+
+        // Layout
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.setPadding(new Insets(20));
+
+        // Ajouter les composants au layout
+        gridPane.add(new Label("Référence:"), 0, 0);
+        gridPane.add(refPosteField, 1, 0);
+        gridPane.add(new Label("Désignation:"), 0, 1);
+        gridPane.add(dPosteField, 1, 1);
+        gridPane.add(new Label("Machines:\n(Sélectionner\nplusieurs machines\navec CTRL+clic)"), 0, 2);
+        gridPane.add(machinesListView, 1, 2);
+
+        HBox buttonBox = new HBox(10, annulerButton, validerButton);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+
+        VBox mainLayout = new VBox(20, gridPane, buttonBox);
+        mainLayout.setPadding(new Insets(10));
+
+        // Scène
+        Scene scene = new Scene(mainLayout);
+        creerPosteStage.setScene(scene);
+        creerPosteStage.getIcons().add(new Image("file:src\\main\\ressources\\images\\icon.png"));
+        creerPosteStage.initModality(Modality.APPLICATION_MODAL);
+        creerPosteStage.show();
+    }
 }

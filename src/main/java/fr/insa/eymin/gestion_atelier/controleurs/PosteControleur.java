@@ -29,7 +29,17 @@ public class PosteControleur {
     public void ajouterPoste(String reference, String designation, ArrayList<Machine> machinesSelectionnees) {
         Poste nouveauPoste = new Poste(reference, designation, machinesSelectionnees);
         postes.add(nouveauPoste);
-        principalVue.afficherNotif("Poste créé avec succès", Feather.CHECK_SQUARE, principalVue.getRootContainer(), 
+        principalVue.afficherNotif("Poste créé avec succès", Feather.CHECK_SQUARE, principalVue.getRootContainer(),
+                "info");
+    }
+
+    public void modifierPoste(Poste poste, String reference, String designation,
+            ArrayList<Machine> machinesSelectionnees) {
+        poste.setRefEquipement(reference);
+        poste.setdEquipement(designation);
+        poste.setMachines(machinesSelectionnees);
+        principalVue.ecrireTreeTableView();
+        principalVue.afficherNotif("Poste modifié avec succès", Feather.CHECK_SQUARE, principalVue.getRootContainer(),
                 "info");
     }
 

@@ -35,13 +35,21 @@ public class OperationControleur {
         this.principalVue = principalVue;
     }
 
+    public OperationControleur(ArrayList<Operation> operations, ArrayList<Machine> machines,
+            ArrayList<Poste> postes, PrincipalVue principalVue) {
+        this.operations = operations != null ? operations : new ArrayList<>();
+        this.machines = machines != null ? machines : new ArrayList<>();
+        this.postes = postes != null ? postes : new ArrayList<>();
+        this.vue = new OperationVue(this);
+        this.principalVue = principalVue;
+    }
+
     /**
      * Affiche la fenêtre de création d'une opération
      */
     public void afficherFenetreCreation() {
         vue.afficherFenetreCreation();
     }
-
 
     /**
      * Crée une nouvelle opération avec les données saisies
@@ -89,6 +97,38 @@ public class OperationControleur {
             }
         } catch (Exception ex) {
             vue.afficherErreur("Erreur", "Erreur lors de la création", ex.getMessage());
+            return false;
+        }
+    }
+
+    public boolean modifierOperation(Operation operation, String refOperation, String dOperation,
+            Equipement refEquipement) {
+        try {
+            // Vérification des champs vides
+            if (refOperation.isEmpty() || dOperation.isEmpty() || refEquipement == null) {
+                vue.afficherErreur("Erreur", "Champs vides", "Veuillez remplir tous les champs obligatoires.");
+                return false;
+            }
+
+            // Vérification si l'opération existe déjà
+            if (operations.stream().anyMatch(o -> o.getRefOperation().equals(refOperation)
+                    && !o.equals(operation))) {
+                vue.afficherErreur("Erreur", "Opération déjà existante", "L'opération existe déjà.");
+                return false;
+            }
+            // Modification de l'opération
+            operation.setRefOperation(refOperation);
+            operation.setrefEquipement(refEquipement);
+            operation.setdOperation(dOperation);
+            // La durée est recalculée automatiquement dans le constructeur de l'opération
+            operation.calculerDureeOperation();
+            principalVue.afficherNotif("Opération modifiée avec succès", Feather.CHECK_SQUARE,
+                    principalVue.getRootContainer(), "info");
+            principalVue.ecrireTreeTableView();
+            return true;
+        } catch (Exception ex) {
+            vue.afficherErreur("Erreur", "Erreur lors de la modification", ex.getMessage());
+            ex.printStackTrace();
             return false;
         }
     }

@@ -4,6 +4,7 @@ import atlantafx.base.theme.Styles;
 import fr.insa.eymin.gestion_atelier.controleurs.OperationControleur;
 import fr.insa.eymin.gestion_atelier.modeles.Equipement;
 import fr.insa.eymin.gestion_atelier.modeles.Machine;
+import fr.insa.eymin.gestion_atelier.modeles.Operation;
 import fr.insa.eymin.gestion_atelier.modeles.Poste;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -147,6 +148,112 @@ public class OperationVue {
         creerOpStage.getIcons().add(new Image("file:src\\main\\ressources\\images\\icon.png"));
         creerOpStage.setScene(scene);
         creerOpStage.show();
+    }
+
+    public void afficherFenetreModification(Operation operation) {
+        // Création de la fenêtre
+        Stage modifOpStage = new Stage();
+        modifOpStage.setTitle("Modifier une opération");
+
+        // Création des champs de texte
+        TextField refOperationField = new TextField();
+        refOperationField.setText(operation.getRefOperation());
+        TextField dOperationField = new TextField();
+        dOperationField.setText(operation.getdOperation());
+
+        // Création des labels
+        Label refOperationLabel = new Label("Référence : ");
+        Label dOperationLabel = new Label("Désignation : ");
+        Label equipementLabel = new Label("Équipement : ");
+
+        // Création d'une liste d'équipements pour le combobox
+        ObservableList<Equipement> equipements = FXCollections.observableArrayList();
+        for (Machine machine : controleur.getMachines()) {
+            equipements.add(machine);
+        }
+        for (Poste poste : controleur.getPostes()) {
+            equipements.add(poste);
+        }
+
+        // Création du combobox pour sélectionner un équipement
+        ComboBox<Equipement> equipementComboBox = new ComboBox<>(equipements);
+        equipementComboBox.setValue(operation.getRefEquipement());
+
+        // Affichage personnalisé des équipements dans le combobox
+        equipementComboBox.setCellFactory(param -> new javafx.scene.control.ListCell<Equipement>() {
+            @Override
+            protected void updateItem(Equipement item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getRefEquipement() + " - " + item.getdEquipement());
+                }
+            }
+        });
+
+        equipementComboBox.setButtonCell(new javafx.scene.control.ListCell<Equipement>() {
+            @Override
+            protected void updateItem(Equipement item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getRefEquipement() + " - " + item.getdEquipement());
+                }
+            }
+        });
+
+        // Création des boutons
+        Button creerButton = new Button("Valider");
+        creerButton.getStyleClass().add(Styles.ACCENT);
+        Button terminerButton = new Button("Annuler");
+
+        // Action du bouton Créer
+        creerButton.setOnAction(e -> {
+            String refOperation = refOperationField.getText();
+            String dOperation = dOperationField.getText();
+            Equipement equipement = equipementComboBox.getValue();
+
+            // Appel du contrôleur pour gérer la création de l'opération
+            boolean succes = controleur.modifierOperation(operation, refOperation, dOperation, equipement);
+
+            if (succes) {
+                // Ferme la fenêtre si la modification a réussi
+                modifOpStage.close();
+            }
+        });
+
+        // Action du bouton Terminer
+        terminerButton.setOnAction(e -> modifOpStage.close());
+
+        // Création de la disposition
+        VBox layout = new VBox(20);
+        HBox layoutBoutons = new HBox(20);
+        GridPane layoutChamps = new GridPane();
+
+        layoutChamps.setHgap(10);
+        layoutChamps.setVgap(10);
+        layoutChamps.add(refOperationLabel, 0, 0);
+        layoutChamps.add(refOperationField, 1, 0);
+        layoutChamps.add(dOperationLabel, 0, 1);
+        layoutChamps.add(dOperationField, 1, 1);
+        layoutChamps.add(equipementLabel, 0, 3);
+        layoutChamps.add(equipementComboBox, 1, 3);
+
+        layoutBoutons.getChildren().addAll(terminerButton, creerButton);
+        layout.getChildren().addAll(layoutChamps, layoutBoutons);
+        layout.setAlignment(Pos.CENTER);
+        layoutBoutons.setAlignment(Pos.CENTER);
+        layout.setPadding(new javafx.geometry.Insets(10));
+
+        // Création de la scène
+        Scene scene = new Scene(layout);
+
+        // Affichage de la fenêtre
+        modifOpStage.getIcons().add(new Image("file:src\\main\\ressources\\images\\icon.png"));
+        modifOpStage.setScene(scene);
+        modifOpStage.show();
     }
 
     /**
