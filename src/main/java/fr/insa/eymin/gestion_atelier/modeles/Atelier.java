@@ -78,10 +78,11 @@ public class Atelier {
      */
     public Map<String, Object> calculerFiabilite() throws FileNotFoundException, IOException {
         // Stocke tous les événements groupés par jour (clé = numéro du jour)
-        LinkedHashMap<String, ArrayList<String>> jours = new LinkedHashMap<>();
-
-        // Contient le temps total de fonctionnement de chaque machine (en minutes)
+        LinkedHashMap<String, ArrayList<String>> jours = new LinkedHashMap<>();        // Contient le temps total de fonctionnement de chaque machine (en minutes)
         HashMap<String, Integer> tempsFonctionnement = new HashMap<>();
+
+        // Stocke les temps de fonctionnement par jour et par machine
+        HashMap<String, HashMap<String, Integer>> tempsFonctionnementParJour = new HashMap<>();
 
         // Mémorise l'heure du dernier démarrage de chaque machine
         HashMap<String, Integer> dernierDepart = new HashMap<>();
@@ -130,16 +131,18 @@ public class Atelier {
                 fiabiliteMulti.put(refMachine, new ArrayList<>()); // Liste vide pour stocker l'historique
             }
         }
-        scanner.close();
-
-        // ----- Traitement des données jour par jour -----
+        scanner.close();        // ----- Traitement des données jour par jour -----
         for (String date : jours.keySet()) {
+            // Création d'un HashMap pour les temps de fonctionnement du jour courant
+            HashMap<String, Integer> tempsFonctionnementJour = new HashMap<>();
+            
             // Réinitialisation des compteurs pour chaque nouveau jour
             for (String ref : machines) {
                 // Hypothèse: toutes les machines démarrent à 6h00 chaque jour
                 dernierDepart.put(ref, 6 * 60);
                 lastEvent.put(ref, "D"); // État initial: démarrée
                 tempsFonctionnement.put(ref, 0); // Remise à zéro du compteur
+                tempsFonctionnementJour.put(ref, 0); // Initialisation pour ce jour
             }
 
             // Analyse des événements pour le jour courant
@@ -161,6 +164,8 @@ public class Atelier {
                     int dureeFonct = horaireEvent - dernierDepart.get(refMachine);
                     // Ajout au compteur global de la machine
                     tempsFonctionnement.put(refMachine, tempsFonctionnement.get(refMachine) + dureeFonct);
+                    // Ajout au compteur du jour pour cette machine
+                    tempsFonctionnementJour.put(refMachine, tempsFonctionnementJour.get(refMachine) + dureeFonct);
                     lastEvent.put(refMachine, event); // Mise à jour de l'état
                 } else if (event.equals("D")) { // Démarrage de la machine
                     dernierDepart.put(refMachine, horaireEvent); // Mémorisation de l'heure de démarrage
@@ -175,6 +180,7 @@ public class Atelier {
                     // on compte le temps jusqu'à 20h (fin de journée)
                     int dureeFonct = 20 * 60 - dernierDepart.get(ref);
                     tempsFonctionnement.put(ref, tempsFonctionnement.get(ref) + dureeFonct);
+                    tempsFonctionnementJour.put(ref, tempsFonctionnementJour.get(ref) + dureeFonct);
                 }
 
                 // Calcul du pourcentage de fiabilité: (temps fonctionnement / temps total
@@ -183,6 +189,9 @@ public class Atelier {
                 fiab = Math.round(fiab * 100.0f) / 100.0f; // Arrondi à 2 décimales
                 fiabiliteMulti.get(ref).add(fiab); // Sauvegarde pour le calcul de moyenne plus tard
             }
+            
+            // Stocker les temps de fonctionnement de ce jour
+            tempsFonctionnementParJour.put(date, new HashMap<>(tempsFonctionnementJour));
         }
 
         // ----- Calcul et tri des fiabilités moyennes par machine -----
@@ -202,13 +211,12 @@ public class Atelier {
                         Map.Entry::getKey,
                         Map.Entry::getValue,
                         (e1, e2) -> e1, // En cas de conflit (ne devrait pas arriver)
-                        LinkedHashMap::new));
-
-        // Préparation des données à retourner
+                        LinkedHashMap::new));        // Préparation des données à retourner
         Map<String, Object> resultats = new HashMap<>();
         resultats.put("jours", jours);
         resultats.put("machines", machines);
         resultats.put("tempsFonctionnement", tempsFonctionnement);
+        resultats.put("tempsFonctionnementParJour", tempsFonctionnementParJour);
         resultats.put("fiabiliteJournaliere", fiabiliteMulti);
         resultats.put("fiabiliteMoyenne", fiabiliteMoyenne);
         resultats.put("tempsTotal", tempsTotal);
@@ -219,12 +227,11 @@ public class Atelier {
     /**
      * Génère un rapport Excel avec les résultats du calcul de fiabilité
      */
-    public void genererRapportExcel(Map<String, Object> resultats, String excelFilePath) throws IOException {
-        // Récupération des données du calcul
+    public void genererRapportExcel(Map<String, Object> resultats, String excelFilePath) throws IOException {        // Récupération des données du calcul
         LinkedHashMap<String, ArrayList<String>> jours = (LinkedHashMap<String, ArrayList<String>>) resultats
                 .get("jours");
         List<String> machines = (List<String>) resultats.get("machines");
-        HashMap<String, Integer> tempsFonctionnement = (HashMap<String, Integer>) resultats.get("tempsFonctionnement");
+        HashMap<String, HashMap<String, Integer>> tempsFonctionnementParJour = (HashMap<String, HashMap<String, Integer>>) resultats.get("tempsFonctionnementParJour");
         HashMap<String, ArrayList<Float>> fiabiliteMulti = (HashMap<String, ArrayList<Float>>) resultats
                 .get("fiabiliteJournaliere");
         Map<String, Float> fiabiliteMoyenne = (Map<String, Float>) resultats.get("fiabiliteMoyenne");
@@ -304,9 +311,9 @@ public class Atelier {
                             break;
                         case 1: // Référence machine
                             cell.setCellValue(ref);
-                            break;
-                        case 2: // Temps de fonctionnement (en minutes)
-                            cell.setCellValue(tempsFonctionnement.get(ref));
+                            break;                        case 2: // Temps de fonctionnement (en minutes) - utiliser les temps spécifiques au jour
+                            int tempsFonctJour = tempsFonctionnementParJour.get(date).get(ref);
+                            cell.setCellValue(tempsFonctJour);
                             break;
                         case 3: // Fiabilité (en pourcentage)
                             cell.setCellValue(fiab + "%");
