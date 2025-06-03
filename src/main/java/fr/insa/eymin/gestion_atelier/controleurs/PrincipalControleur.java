@@ -365,7 +365,7 @@ public class PrincipalControleur {
 
     public void sauvegarderAtelier(File fichier) {
         File sauvegarde = new File(
-                "C:\\Users\\lilou\\Documents\\INSA\\PIF\\Informatique\\S2\\PROJET\\Gestion_Atelier\\src\\main\\ressources\\data\\atelier_saves\\backups\\"
+                "src\\main\\ressources\\data\\atelier_saves\\backups\\"
                         + principalVue.getAtelier().getNomAtelier() + ".bak");
         try {
             // Créer une sauvegarde si le fichier existe
