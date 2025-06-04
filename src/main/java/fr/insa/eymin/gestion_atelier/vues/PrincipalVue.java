@@ -378,11 +378,11 @@ public class PrincipalVue extends StackPane {
 
         // Stylisation du panneau d'informations
         // infoDroite.setStyle("-fx-background-color:#eef1f5;");
-        infoDroite.setStyle("-fx-background-color: #e5e9f0;"); // Couleur de fond
+        infoDroite.setStyle("-fx-background-color: #3b4252;"); // Couleur de fond
         infoDroite.setPadding(new javafx.geometry.Insets(10));
         infoDroite.setSpacing(10);
         infoDroite.setBorder(new Border(new BorderStroke(
-                javafx.scene.paint.Paint.valueOf("#c7ceda"), // couleur
+                javafx.scene.paint.Paint.valueOf("#4c566a"), // couleur
                 BorderStrokeStyle.SOLID, // style
                 CornerRadii.EMPTY, // rayons des coins
                 new BorderWidths(0, 0, 0, 1) // largeurs: haut, droite, bas, gauche
